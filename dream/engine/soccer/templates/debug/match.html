@@ -1,0 +1,70 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+Debug interface ahoi!
+<br/>
+{{message}}
+<br/>
+<canvas id="soccer_field" width="420" height="660" style="background-color:#009840;">
+</canvas>
+
+<script type="text/javascript" src="{% static 'vendor/jquery/2.1.3/js/jquery.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    var canvas = document.getElementById('soccer_field');
+    var ctx = canvas.getContext('2d');
+    var state = $.parseJSON("{{board_state|escapejs}}");
+    var grid_width = 70,
+        grid_length = 110,
+        maxw = canvas.width,
+        maxh = canvas.height;
+
+    ctx.strokeStyle = "#4DB779";
+
+    var hunit = maxh / grid_length,
+        wunit = maxw / grid_width;
+
+    // draw horizontal lines of the grid
+    var x = 0, y = 0;
+    for (var i = 0; i < grid_length; i++) {
+        y = i * hunit;
+        ctx.moveTo(x, y);
+        ctx.lineTo(maxw, y);
+        ctx.stroke();
+    }
+    // draw vertical lines
+    y = 0;
+    for (i = 0; i < grid_width; i++) {
+        x = i * wunit;
+        ctx.moveTo(x, y);
+        ctx.lineTo(x, maxh);
+        ctx.stroke();
+    }
+
+    var placePlayerAt = function(x, y) {
+        ctx.beginPath()
+        ctx.strokeStyle = "#000000";
+        ctx.arc(x * wunit, y * hunit, 4, 0, 2 * Math.PI);
+        ctx.stroke()
+    }
+
+    var player_coords = state.player_coords;
+
+    //console.log(player_coords)
+
+    $.each(player_coords, function(idx, coords) {
+        placePlayerAt(coords[0], coords[1]);
+    });
+
+    //placePlayerAt(35, 5)
+})
+
+</script>
+
+</body>
+</html>

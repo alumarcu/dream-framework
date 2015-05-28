@@ -1,0 +1,22 @@
+{% extends "_base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+    {% url 'signup' as this_page_url %}
+
+    <div class="row">
+        <div class="small-12 large-6 columns">
+            <form action="{{ this_page_url }}" method="post">
+                {% csrf_token %}
+                {{ signup_form }}
+                <input type="submit" value="Submit" />
+            </form>
+        </div>
+        <div class="small-12 large-6 columns">Under construction</div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static 'ui_base/js/test.js' %}"></script>
+{% endblock %}
