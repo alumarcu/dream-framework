@@ -1,3 +1,5 @@
 testxx/
 .idea/
 dream/settings_dist.py
+__pycache__/
+*.pyc

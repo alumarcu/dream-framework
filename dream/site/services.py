@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+from dream.tools import line_count
 from dream.core.models import Club, Manager, Team, Npc, Country, Division, League, TeamDivision
 
 
@@ -109,8 +110,8 @@ class SignupService:
         file_firstnames = join(rootpath, '%s_%s_fn.txt' % (ccode, cgender))
         file_lastnames = join(rootpath, '%s_u_ln.txt' % ccode)
 
-        count_firstnames = self.linecount(file_firstnames)
-        count_lastnames = self.linecount(file_lastnames)
+        count_firstnames = line_count(file_firstnames)
+        count_lastnames = line_count(file_lastnames)
 
         npcs = []
         for i in range(self.INITIAL_PLAYERS_IN_TEAM):
@@ -128,8 +129,3 @@ class SignupService:
 
         clearcache()
         return npcs
-
-    def linecount(self, filepath):
-        # TODO: [SER-08] Should be moved to an utility module
-        with open(filepath) as file:
-            return sum(1 for ln in file)

@@ -1,6 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 from json import loads as json_decode, dumps as json_encode
-from dream.engine.soccer.tools import engine_params, toss_coin
+from dream.tools import toss_coin
+from dream.engine.soccer.tools import engine_params
 from dream.engine.soccer.exceptions import InitError, SimulationError
 
 
@@ -169,6 +170,9 @@ class SingleMatch(Simulation):
         players_to_move = self.players_move_order(players_to_move, player_with_ball.team.key())
 
         for player in players_to_move:
+            # TODO: [SIM-05] A player from the opposing team should follow, check ordering
+            # Actions available: advance, etc.
+
             print("%s has the next action..." % player)
 
             possible_actions = player.get_possible_actions(grid_state.filters())
@@ -188,8 +192,7 @@ class SingleMatch(Simulation):
 
         print(self.board.grid.pretty_print())
 
-        # TODO: [SIM-05] Next, find player from another team
-        # Actions available: advance, etc.
+
 
     def players_move_order(self, players_list, kickoff_team):
         # TODO: [SIM-06] Better movement order based on INITIATIVE, DISTANCE TO BALL, TEAM, ETC

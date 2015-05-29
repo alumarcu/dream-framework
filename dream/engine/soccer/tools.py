@@ -23,7 +23,3 @@ def engine_params(section=None, key=None):
 
 # A cache with all parameters defined in that table
 engine_params.cache = None
-
-def toss_coin(sides):
-    from random import choice
-    return choice(sides)
