@@ -1,5 +1,6 @@
 from django.db.models import Model, CharField, BooleanField, ForeignKey, SmallIntegerField
 from django.utils.translation import ugettext_lazy as _
+from dream.engine.soccer.exceptions import LoopError
 
 
 class EngineParam(Model):
@@ -47,11 +48,16 @@ class Requirement(Model):
         return self.name
 
     def enum_values(self, ids=None):
-        if ids is None:
-            return RequirementEnumValue.objects.filter(requirement=self)
-        if type(ids) is int:
-            ids = [ids]
-        return RequirementEnumValue.objects.filter(pk__in=ids)
+        if type(ids) in [list, int]:
+            # Return values of certain IDs (or of a single ID)
+            if type(ids) is int:
+                ids = [ids]
+            enum_values = RequirementEnumValue.objects.filter(pk__in=ids)
+            if len(ids) != len(enum_values):
+                raise LoopError(_('Enum values missing for requirement: %s' % self.name))
+
+        # Return all values for this requirement
+        return RequirementEnumValue.objects.filter(requirement=self)
 
 
 class RequirementEnumValue(Model):
@@ -83,32 +89,6 @@ class ActionRequirement(Model):
 
     condition = CharField(_('condition'), max_length=30)
     value = CharField(_('condition value'), max_length=250)
-
-    def parsed(self):
-        requirement_type = self.requirement.type
-        required_values = None
-
-        if requirement_type == Requirement.TYPE_BOOL:
-            required_values = True if self.value == Requirement.VAL_BOOL_TRUE else False
-        elif requirement_type == Requirement.TYPE_INT:
-            required_values = int(self.value)
-        elif requirement_type == Requirement.TYPE_ENUM:
-            from json import loads as json_decode
-
-            # IDs of values that are required
-            value_ids = json_decode(self.value)
-            # Getting the actual values from IDs
-            enum_values = self.requirement.enum_values(value_ids)
-            # TODO: [SIM-08] Should check that all enum values have been found
-            required_values = [ev.value for ev in enum_values]
-
-        req_key = self.requirement.name
-        req_data = {
-            'condition': self.condition,
-            'required_values': required_values,
-        }
-
-        return {req_key: req_data}
 
 
 class FieldZone(Model):

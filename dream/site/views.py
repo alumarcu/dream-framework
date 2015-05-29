@@ -25,7 +25,6 @@ class SignupView(View):
             service = SignupService()
             service.create_user(data)
 
-        # TODO: [VIW-01] Remove redundant code used for displaying the page
         context = {'signup_form': form}
 
         return render(request, self.TEMPLATE_PATH, context)

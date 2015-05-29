@@ -50,7 +50,7 @@ class ActionContext:
         action_context = {}
 
         for action_requirement in requirements:
-            action_context.update(action_requirement.parsed())
+            action_context.update(ActionContext.parse_action_requirement(action_requirement))
 
         # Now check each requirement as it's being iterated over
         for req_key, req_data in action_context.items():
@@ -58,6 +58,37 @@ class ActionContext:
                 return False
 
         return True
+
+    @staticmethod
+    def parse_action_requirement(ar):
+        """
+        Parses an action-requirement mapping based on the type of the requirement
+        """
+        from dream.engine.soccer.models import Requirement
+
+        requirement_type = ar.requirement.type
+        required_values = None
+
+        if requirement_type == Requirement.TYPE_BOOL:
+            required_values = True if ar.value == Requirement.VAL_BOOL_TRUE else False
+        elif requirement_type == Requirement.TYPE_INT:
+            required_values = int(ar.value)
+        elif requirement_type == Requirement.TYPE_ENUM:
+            from json import loads as json_decode
+
+            # IDs of values that are required
+            value_ids = json_decode(ar.value)
+            # Getting the actual values from IDs
+            enum_values = ar.requirement.enum_values(value_ids)
+            required_values = [ev.value for ev in enum_values]
+
+        req_key = ar.requirement.name
+        req_data = {
+            'condition': ar.condition,
+            'required_values': required_values,
+        }
+
+        return {req_key: req_data}
 
     def meets_requirement(self, req_key, req_data):
         from dream.engine.soccer.models import Requirement, ActionRequirement

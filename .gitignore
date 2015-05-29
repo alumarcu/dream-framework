@@ -1,5 +1,8 @@
 testxx/
 .idea/
 dream/settings_dist.py
+dream/core/migrations/
+dream/engine/soccer/migrations/
+migrations/
 __pycache__/
 *.pyc

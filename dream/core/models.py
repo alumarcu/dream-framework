@@ -2,6 +2,7 @@ from django.db.models import Model, CharField, DateTimeField, ForeignKey, Intege
     SmallIntegerField, BooleanField, TextField, DecimalField
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+from dream.tools import create_reference
 
 
 GENDER_MALE = 'm'
@@ -197,19 +198,21 @@ class MatchTeam(Model):
 
     # A JSON string, parsed when the match is initialized
     tactics = TextField(_('team tactics (json)'), default='{}')
+    tactics_ref = TextField(_('team tactics reference'), editable=False, blank=True)
 
     created = DateTimeField(auto_now_add=True)
     modified = DateTimeField(auto_now=True)
 
-    def tactics_ref(self):
-        return MatchTeam.create_tactics_ref(self.tactics, self.match.pk)
+    def save(self, *args, **kwargs):
+        self.tactics_ref = create_reference(self.tactics, self.match.pk)
+        super().save(*args, **kwargs)
 
-    @staticmethod
-    def create_tactics_ref(data, id):
-        from hashlib import md5
-        md5_hash = md5(data.encode('utf-8'))
-        dataid = str(id)
-        return dataid.zfill(10) + '_' + md5_hash.hexdigest().upper()
+    def check_tactics_ref(self):
+        # Checks that tactics data was saved correctly
+        current_hash = create_reference(self.tactics, self.match.pk)
+        if current_hash != self.tactics_ref:
+            return False
+        return True
 
     class Meta:
         verbose_name_plural = _('match teams')
