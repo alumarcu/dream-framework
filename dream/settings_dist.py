@@ -83,7 +83,7 @@ DATABASES = {
         'HOST': 'localhost',
         'NAME': 'dreamframework',
         'USER': 'postgres',
-        'PASSWORD': 'parola',
+        'PASSWORD': 'postgres',
     }
 }
 
