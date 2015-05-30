@@ -2,6 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 from dream.engine.soccer.tools import engine_params
 from dream.engine.soccer.exceptions import InitError
 
+
 class Board:
     def __init__(self):
         params = engine_params(section='tactics')
@@ -69,9 +70,11 @@ class Board:
     def place_player_on_field(self, field_player):
         from dream.engine.soccer.match.actors import FieldPlayer
         if type(field_player) is not FieldPlayer:
-            raise InitError(_('Only FieldPlayer objects can be placed on field'))
+            message = _('Only FieldPlayer objects can be placed on field')
+            raise InitError(message)
 
         zone_center = self.zones[field_player.field_zone][field_player.team.key() + '_center']
+
         field_player.init_start_position(zone_center, self.grid)
 
     def grid_state(self):
@@ -86,6 +89,7 @@ class Board:
             round((length[0] + length[1]) / 2)
         )
 
+
 class Grid:
     width = None
     length = None
@@ -99,7 +103,9 @@ class Grid:
         self.length = int(params['grid_length'])
 
     def initialize(self):
-        self.matrix = [[GridCell(self, w, l) for w in range(self.width)] for l in range(self.length)]
+        self.matrix = [[GridCell(self, w, l) for w in range(self.width)]
+                       for l in range(self.length)]
+
         self.state = GridState()
 
     def pretty_print(self):

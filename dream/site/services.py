@@ -65,7 +65,8 @@ class SignupService:
 
     def _create_team(self, league):
         return Team(
-            # TODO: [SER-06] User should be able to decide if the name of the team is same as club's
+            # TODO: [SER-06] User should be able to decide if the
+            # name of the team is same as club's
             name=self.club.name,
             club=self.club,
             # TODO: [SER-07] TBD - choice of gender before choice or league or vice versa
@@ -84,7 +85,8 @@ class SignupService:
         country = Country.objects.get(pk=self._user_data['country'])
 
         if not isinstance(country, Country):
-            # TODO: [SER-03] Create relevant exceptions for Service and Signup process, or just generic site errors
+            # TODO: [SER-03] Create relevant exceptions for Service and Signup
+            # process, or just generic site errors
             print(_('invalid country: %s' % self._user_data['country']))
             exit()
 
@@ -106,7 +108,8 @@ class SignupService:
         rootpath = join(BASE_DIR, 'docs', 'names')
 
         # TODO: [SER-09] Names of NPCs should be read from a database table rather than flat files
-        # Furthermore, a database function to automatically generate a random name would be useful here
+        # Furthermore, a database function to automatically
+        # generate a random name would be useful here
         file_firstnames = join(rootpath, '%s_%s_fn.txt' % (ccode, cgender))
         file_lastnames = join(rootpath, '%s_u_ln.txt' % ccode)
 

@@ -1,6 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 from dream.engine.soccer.exceptions import LoopError
 
+
 class ActionFactory:
 
     def __init__(self):
@@ -22,13 +23,15 @@ class ActionFactory:
             LoopError(_('Invalid class name %s' % class_name))
         return self._map[class_name]
 
+
 class ActionContext:
 
     _current = None
 
     def __init__(self, filter_dict):
 
-        # {'Player': {'HasBall': True}, 'Game': {'ActionStatus': 'play_interrupted', 'TickId': 1}, 'Team': {'PhaseOfPlay': 'phase_
+        # {'Player': {'HasBall': True}, 'Game': {'ActionStatus':
+        # 'play_interrupted', 'TickId': 1}, 'Team': {'PhaseOfPlay': 'phase_
         # buildplay', 'SetPieces': 'setpieces_kickoff'}}
         self._current = {}
 
@@ -50,7 +53,8 @@ class ActionContext:
         action_context = {}
 
         for action_requirement in requirements:
-            action_context.update(ActionContext.parse_action_requirement(action_requirement))
+            action_context.update(
+                ActionContext.parse_action_requirement(action_requirement))
 
         # Now check each requirement as it's being iterated over
         for req_key, req_data in action_context.items():
@@ -62,7 +66,7 @@ class ActionContext:
     @staticmethod
     def parse_action_requirement(ar):
         """
-        Parses an action-requirement mapping based on the type of the requirement
+        Parses an action-requirement mapping based on the type of requirement
         """
         from dream.engine.soccer.models import Requirement
 
@@ -70,7 +74,8 @@ class ActionContext:
         required_values = None
 
         if requirement_type == Requirement.TYPE_BOOL:
-            required_values = True if ar.value == Requirement.VAL_BOOL_TRUE else False
+            required_values = True \
+                if ar.value == Requirement.VAL_BOOL_TRUE else False
         elif requirement_type == Requirement.TYPE_INT:
             required_values = int(ar.value)
         elif requirement_type == Requirement.TYPE_ENUM:
@@ -116,30 +121,32 @@ class ActionContext:
         if req_data['condition'] == ActionRequirement.CONDITION_ABOVE:
             if current_val <= req_value:
                 return False
-        if req_data['condition'] == ActionRequirement.CONDITION_ABOVE_OR_EQUAL:
+        if req_data['condition'] == \
+                ActionRequirement.CONDITION_ABOVE_OR_EQUAL:
             if current_val < req_value:
                 return False
         if req_data['condition'] == ActionRequirement.CONDITION_BELOW:
             if current_val >= req_value:
                 return False
-        if req_data['condition'] == ActionRequirement.CONDITION_BELOW_OR_EQUAL:
+        if req_data['condition'] == \
+                ActionRequirement.CONDITION_BELOW_OR_EQUAL:
             if current_val > req_value:
                 return False
 
         return True
 
+
 class FieldAction:
     # TODO: Create base abstract methods!!
-
-    #player = None
-    #board = None
+    # player = None
+    # board = None
 
     def perform(self, player, board):
-        #TODO: Check instance types
+        # TODO: Check instance types
         pass
 
     def check_dependencies(self):
-        # TODO
+        # TODO check_dependencies
         """
         An action may depend on the existence of certain player
         attributes in database, or other db-side values. Use this
@@ -147,6 +154,7 @@ class FieldAction:
         what's defined on database
         """
         return True
+
 
 class BallAction(FieldAction):
 
@@ -162,11 +170,11 @@ class BallAction(FieldAction):
         if ball_winner is not False:
             target_cell.give_ball_to(ball_winner)
 
-
     def get_ball_winner(self, players_on_cell):
         if len(players_on_cell) == 0:
             return False
-        # TODO --> Competition for ball between two players in same cell, or just random
+        # TODO --> Competition for ball between two players
+        # in same cell, or just random
         return players_on_cell[0]
 
 
@@ -185,18 +193,22 @@ class IndirectKickPassAction(PassAction):
         current_grid_cell = grid.get_cell(player.current_position)
         next_grid_cell = None
 
-        if player.ROLE_FREE_KICKS in player.roles and player.team.kickoff_first:
+        if player.ROLE_FREE_KICKS in player.roles and \
+                player.team.kickoff_first:
             # TODO: Negate and quit OR validate
 
             print("The player kicks off the ball")
             kickoff_zones = grid.get_kickoff_cell_coords(player.team.key())
-            next_position = kickoff_zones[1]        # Coords of the next grid cell
+            # Coords of the next grid cell
+            next_position = kickoff_zones[1]
             next_grid_cell = grid.get_cell(next_position)
 
             self.move_ball(current_grid_cell, next_grid_cell)
 
+
 class MoveAction(FieldAction):
     pass
+
 
 class OffensivePositionAction(MoveAction):
 
@@ -212,8 +224,6 @@ class OffensivePositionAction(MoveAction):
         print("%s moves to %s" % (player, coords))
         grid.move_player(player, coords)
 
+
 class DefensivePositionAction(MoveAction):
     pass
-
-
-

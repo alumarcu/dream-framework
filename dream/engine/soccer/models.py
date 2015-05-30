@@ -1,4 +1,5 @@
-from django.db.models import Model, CharField, BooleanField, ForeignKey, SmallIntegerField
+from django.db.models import Model, CharField, BooleanField, ForeignKey, \
+    SmallIntegerField
 from django.utils.translation import ugettext_lazy as _
 from dream.engine.soccer.exceptions import LoopError
 
@@ -7,7 +8,12 @@ class EngineParam(Model):
     section = CharField(_('section'), max_length=100, db_index=True)
     key = CharField(_('key'), max_length=250, unique=True, db_index=True)
     value = CharField(_('value'), max_length=250)
-    description = CharField(_('description'), max_length=250, blank=True, default='')
+    description = CharField(
+        _('description'),
+        max_length=250,
+        blank=True,
+        default=''
+    )
 
     def __str__(self):
         return '%s.%s = %s' % (self.section, self.key, self.value)
@@ -18,7 +24,12 @@ class PlayerAction(Model):
     Defines actions a FieldPlayer can perform during game
     """
     name = CharField(_('action name'), max_length=30)
-    description = CharField(_('action description'), max_length=250, blank=True)
+    description = CharField(
+        _('action description'),
+        max_length=250,
+        blank=True
+    )
+
     # Whether the action can happen or is disabled
     enabled = BooleanField(_('action enabled'), default=False)
 
@@ -42,7 +53,12 @@ class Requirement(Model):
     VAL_BOOL_TRUE = 'true'
 
     name = CharField('requirement name', max_length=30)
-    type = CharField('requirement type', max_length=10, choices=TYPES, default=TYPE_INT)
+    type = CharField(
+        'requirement type',
+        max_length=10,
+        choices=TYPES,
+        default=TYPE_INT
+    )
 
     def __str__(self):
         return self.name
@@ -54,7 +70,8 @@ class Requirement(Model):
                 ids = [ids]
             enum_values = RequirementEnumValue.objects.filter(pk__in=ids)
             if len(ids) != len(enum_values):
-                raise LoopError(_('Enum values missing for requirement: %s' % self.name))
+                raise LoopError(
+                    _('Enum values missing for requirement: %s' % self.name))
 
         # Return all values for this requirement
         return RequirementEnumValue.objects.filter(requirement=self)

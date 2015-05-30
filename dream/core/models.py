@@ -1,5 +1,5 @@
-from django.db.models import Model, CharField, DateTimeField, ForeignKey, IntegerField, \
-    SmallIntegerField, BooleanField, TextField, DecimalField
+from django.db.models import Model, CharField, DateTimeField, ForeignKey, \
+    IntegerField, SmallIntegerField, BooleanField, TextField, DecimalField
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from dream.tools import create_reference
@@ -20,9 +20,11 @@ GENDER_CHOICES = (
 
 class Sport(Model):
     name = CharField(max_length=40)
-    # TODO: [MOD-01] Correspondence between NPC roles and the sports they are relevant to.
-    # For example, it should be possible for a club to have the same medics used for both
-    # the men's soccer team and women's handball. A Sport can have multiple Roles associated (N to N assoc)
+    # TODO: [MOD-01] Correspondence between NPC roles and the sports they are
+    # relevant to.
+    # For example, it should be possible for a club to have the same medics
+    # used for both the men's soccer team and women's handball. A Sport can
+    # have multiple Roles associated (N to N assoc)
 
     def __str__(self):
         return self.name
@@ -54,9 +56,15 @@ class League(Model):
     min_age = SmallIntegerField(_('minimum age for signup'))
     max_age = SmallIntegerField(_('maximum age for signup'))
 
-    gender = CharField(max_length=1, choices=GENDER_CHOICES, default=GENDER_UNDEFINED)
-    # TODO: [MOD-02] A specialized class which handles calendars and schedules should be created.
-    # The component should allow adding different schedules for each country, league and sport.
+    gender = CharField(
+        _('gender'),
+        max_length=1,
+        choices=GENDER_CHOICES,
+        default=GENDER_UNDEFINED
+    )
+    # TODO: [MOD-02] A specialized class which handles calendars and schedules
+    # should be created. The component should allow adding different schedules
+    # for each country, league and sport.
     schedule = SmallIntegerField()
 
     created = DateTimeField(auto_now_add=True)
@@ -89,7 +97,12 @@ class Manager(Model):
 
     name = CharField(_('manager name'), max_length=60)
     age = SmallIntegerField(blank=True, null=True)
-    gender = CharField(_('gender'), max_length=1, choices=GENDER_CHOICES, default=GENDER_UNDEFINED)
+    gender = CharField(
+        _('gender'),
+        max_length=1,
+        choices=GENDER_CHOICES,
+        default=GENDER_UNDEFINED
+    )
 
     created = DateTimeField(auto_now_add=True)
     modified = DateTimeField(auto_now=True)
@@ -100,7 +113,8 @@ class Manager(Model):
 
 class Club(Model):
     """
-    Represents the main structure built, managed and developed by Player Characters through the game
+    Represents the main structure built, managed and developed by
+    Player Characters through the game
     """
     manager = ForeignKey(Manager)
     country = ForeignKey(Country)
@@ -118,7 +132,12 @@ class Team(Model):
     club = ForeignKey(Club)
 
     name = CharField(_('team name'), max_length=60)
-    gender = CharField(max_length=1, choices=GENDER_CHOICES, default=GENDER_UNDEFINED)
+    gender = CharField(
+        _('gender'),
+        max_length=1,
+        choices=GENDER_CHOICES,
+        default=GENDER_UNDEFINED
+    )
 
     created = DateTimeField(auto_now_add=True)
     modified = DateTimeField(auto_now=True)
@@ -158,7 +177,8 @@ class Match(Model):
     # This should minimally know about name and capacity
     stadium = IntegerField(null=True, blank=True)
 
-    # A JSON string, contains everything required to render the game or restore a simulation
+    # A JSON string, contains everything required to
+    # render the game or restore a simulation
     journal = TextField(blank=True)
     # Tells whether simulation or rendering is currently running
     status = SmallIntegerField(default=1)
@@ -175,7 +195,8 @@ class Match(Model):
 
 class MatchTeam(Model):
     """
-    Manages the adherence of a team to a certain match; includes tactics set for that match and outcome
+    Manages the adherence of a team to a certain match;
+    includes tactics set for that match and outcome
     """
     TEAM_ROLE_HOME = 'home'
     TEAM_ROLE_AWAY = 'away'
@@ -193,12 +214,17 @@ class MatchTeam(Model):
     # Outcome of the game
     # For soccer, points represent goals scored during game
     points = SmallIntegerField(_('scored points'), default=0)
-    # For soccer, reward represents the points awarded for victory (i.e. 3p), or draw
+    # For soccer, reward represents the points awarded
+    # for victory (i.e. 3p), or draw
     reward = SmallIntegerField(_('team reward'), default=0)
 
     # A JSON string, parsed when the match is initialized
     tactics = TextField(_('team tactics (json)'), default='{}')
-    tactics_ref = TextField(_('team tactics reference'), editable=False, blank=True)
+    tactics_ref = TextField(
+        _('team tactics reference'),
+        editable=False,
+        blank=True
+    )
 
     created = DateTimeField(auto_now_add=True)
     modified = DateTimeField(auto_now=True)
@@ -220,7 +246,8 @@ class MatchTeam(Model):
 
 class Attribute(Model):
     """
-    Defines attributes that can possibly apply to game entities, such as the Manager or NPCs;
+    Defines attributes that can possibly apply to game
+    entities, such as the Manager or NPCs;
     """
     ATTR_TYPE_TRAIT = 1
     ATTR_TYPE_SKILL = 2
@@ -247,7 +274,11 @@ class ManagerAttribute(Model):
     manager = ForeignKey(Manager)
     attribute = ForeignKey(Attribute)
 
-    value = DecimalField(_('value of the attribute'), max_digits=16, decimal_places=4)
+    value = DecimalField(
+        _('value of the attribute'),
+        max_digits=16,
+        decimal_places=4
+    )
 
     created = DateTimeField(auto_now_add=True)
     modified = DateTimeField(auto_now=True)
@@ -255,8 +286,10 @@ class ManagerAttribute(Model):
 
 class Npc(Model):
     """
-    Can be players, staff of a club; or anyone else who may have a role in the overall game;
-    has a gender; may or may not belong to a club, may be in a club but not in a team (e.g. staff)
+    Can be players, staff of a club; or anyone else who
+    may have a role in the overall game;
+    has a gender; may or may not belong to a club,
+    may be in a club but not in a team (e.g. staff)
     """
     club = ForeignKey(Club, blank=True, null=True)
     team = ForeignKey(Team, blank=True, null=True)
@@ -266,9 +299,16 @@ class Npc(Model):
     nickname = CharField(_('npc nickname'), max_length=20, blank=True)
 
     age = SmallIntegerField(blank=True, null=True)
-    gender = CharField(_('gender'), max_length=1, choices=GENDER_CHOICES, default=GENDER_UNDEFINED)
-    # TODO: [MOD-04] NPC roles should be formalized in a separate table; also see MOD-01
-    # It should be possible to extract the sport(s) the Npc is relevat to from his role
+    gender = CharField(
+        _('gender'),
+        max_length=1,
+        choices=GENDER_CHOICES,
+        default=GENDER_UNDEFINED
+    )
+    # TODO: [MOD-04] NPC roles should be formalized in a
+    # separate table; also see MOD-01
+    # It should be possible to extract the sport(s)
+    # the Npc is relevat to from his role
     role = CharField(_('role'), max_length=20, blank=True)
 
     created = DateTimeField(auto_now_add=True)
@@ -276,7 +316,11 @@ class Npc(Model):
 
     def __str__(self):
         if self.nickname != '':
-            return '%s "%s" %s' % (self.first_name, self.nickname, self.last_name)
+            return '%s "%s" %s' % (
+                self.first_name,
+                self.nickname,
+                self.last_name
+            )
         return '%s %s' % (self.first_name, self.last_name)
 
 
@@ -284,7 +328,11 @@ class NpcAttribute(Model):
     npc = ForeignKey(Npc)
     attribute = ForeignKey(Attribute)
 
-    value = DecimalField(_('value of the attribute'), max_digits=16, decimal_places=4)
+    value = DecimalField(
+        _('value of the attribute'),
+        max_digits=16,
+        decimal_places=4
+    )
 
     created = DateTimeField(auto_now_add=True)
     modified = DateTimeField(auto_now=True)

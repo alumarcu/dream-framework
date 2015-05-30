@@ -35,11 +35,13 @@ class FieldTeam:
         self.init_phase()
 
     def init_phase(self):
-        # TODO: [ACT-01] Phase of play should change based on which third is the ball in
+        # TODO: [ACT-01] Phase of play should change based on
+        # which third is the ball in
         # and to whom it belongs as well as individual team tactics
 
-        if (self.kickoff_first == True and self._grid_state.period() == 1) or \
-        (self.kickoff_first == False and self._grid_state.period() == 2):
+        if (self.kickoff_first is True and self._grid_state.period() == 1) or \
+                (self.kickoff_first is False and self._grid_state.period() == 2):
+
             # TODO: [ACT-02] Phase of play account for tactics
             self._team_phase = self.PHASE_BUILDPLAY
             self._set_pieces = self.SP_KICKOFF
@@ -60,7 +62,8 @@ class FieldTeam:
 
 
 class FieldPlayer:
-    # TODO: [ACT-03] Field player roles should be defined in db rather than constants
+    # TODO: [ACT-03] Field player roles should be defined in db
+    # rather than constants
     ROLE_CAPTAIN = 'captain'
     ROLE_FREE_KICKS = 'field_free_kicks'
     ROLE_PLAYMAKER = 'playmaker'
@@ -72,7 +75,8 @@ class FieldPlayer:
         self.npc = None
         self.attributes = None
 
-        # How the player is initially placed in its zone (the modifiers value +/-)
+        # How the player is initially placed in its zone
+        # (the modifiers value +/-)
         self.field_position = None
         # The zone where the player initially starts
         self.field_zone = None
@@ -82,28 +86,35 @@ class FieldPlayer:
         self.team = None
         self.roles = None
 
-        # TODO: [ACT-04] Multiple players can have ball action based on relative distance to
-        # the ball of each, when the ball is not in the same cell as any of the players.
-        # in this case the action may be performed by the one with best SPEED/INITIATIVE/CONCENTRATION
+        # TODO: [ACT-04] Multiple players can have ball action
+        # based on relative distance to
+        # the ball of each, when the ball is not
+        # in the same cell as any of the players.
+        # in this case the action may be performed by
+        # the one with best SPEED/INITIATIVE/CONCENTRATION
         self.has_ball_action = False
 
     def init_start_position(self, zone_center, grid):
         from random import randint
         if self.ROLE_FREE_KICKS in self.roles and self.team.kickoff_first:
-            # TODO: [ACT-05] Kickoff role should be given by the player based on some logic, not defined by a human
+            # TODO: [ACT-05] Kickoff role should be given by
+            # the player based on some logic, not defined by a human
             kickoff_zones = grid.get_kickoff_cell_coords(self.team.key())
             self.current_position = kickoff_zones[0]
             grid.place_player(self)
-            # TODO: [ACT-06] 1st tick -> the ball will be passed to the play maker
+            # TODO: [ACT-06] 1st tick -> the ball will
+            # be passed to the play maker
             grid.give_ball_to(self)
         elif self.ROLE_PLAYMAKER in self.roles and self.team.kickoff_first:
             kickoff_zones = grid.get_kickoff_cell_coords(self.team.key())
             self.current_position = kickoff_zones[1]
             grid.place_player(self)
         else:
-            # TODO: [ACT-07] Special placement for all players relative to the center at kickoff
+            # TODO: [ACT-07] Special placement for all players
+            # relative to the center at kickoff
             # TODO: [ACT-08] Get goalkeeper zone and place him
-            # TODO: [ACT-09] Randomization limits below are calculated on discipline
+            # TODO: [ACT-09] Randomization limits below are
+            # calculated on discipline
             random_diff_x = randint(0, 2)
             random_diff_y = randint(0, 2)
             self.current_position = (
@@ -116,7 +127,8 @@ class FieldPlayer:
         filters = {} if filters is None else filters
 
         # TODO: [ACT-10] Initially received filters are driven from grid state
-        # TODO: [ACT-11] Take team state into account unless already implemented (check)
+        # TODO: [ACT-11] Take team state into account
+        # unless already implemented (check)
         filters.update(self.team.filters())
         filters.update({
             'Player': {
@@ -135,8 +147,10 @@ class FieldPlayer:
             raise InitError(_('Uninitialized player'))
 
     def init_actions(self):
-        # TODO: [ACT-12] Instantiate the action class from the player action with row data
-        # Instantiate conditional class and other required classes and compose into action class
+        # TODO: [ACT-12] Instantiate the action class
+        # from the player action with row data
+        # Instantiate conditional class and other
+        # required classes and compose into action class
         from dream.engine.soccer.models import PlayerAction
         # Filter only allowed actions (fail safe)
         return PlayerAction.objects.filter(enabled=True)
@@ -160,14 +174,15 @@ class FieldPlayer:
 
     def decide_action(self, actions):
         """
-        The choice of action is made based on player (intelligence/reflexes/style of play/etc)
-        and random (inspiration). The lower the player intelligence/reflexes, the higher the random
+        The choice of action is made based on player
+        (intelligence/reflexes/style of play/etc)
+        and random (inspiration). The lower the player
+        intelligence/reflexes, the higher the random
         Also if the player is "unpredictable" it will be a higher random
         """
         # TODO Implement as discussed
         from random import choice as random_pick
         return random_pick(actions)
-
 
     def perform_action(self, player_action, board):
         from dream.engine.soccer.models import PlayerAction
@@ -184,14 +199,10 @@ class FieldPlayer:
         action_cls = factory.create_action(player_action.name)
         action_inst = action_cls()
 
-        #print(board.grid_state().player_with_ball)
-        #print(self.current_position)
-
         print(action_inst)
         action_inst.perform(player=self, board=board)
 
         # action_inst.set_player(self)
         # action_inst.set_board(board)
         # action_inst.perform()
-
         # TODO ^^^

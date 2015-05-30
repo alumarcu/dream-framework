@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from dream.engine.soccer.match.simulation import SingleMatch
 import traceback
 
+
 class Command(BaseCommand):
     help = 'Process a single match by a given id'
 

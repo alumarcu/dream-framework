@@ -155,9 +155,8 @@ class SingleMatch(Simulation):
         player_with_ball.perform_action(action, self.board)
         print("Action performed.")
 
-        #print(self.board.grid.pretty_print())
-
-        #exit("TODO: Process players without ball in this tick;")
+        # print(self.board.grid.pretty_print())
+        # exit("TODO: Process players without ball in this tick;")
 
         # Decide order of players
 
@@ -192,15 +191,15 @@ class SingleMatch(Simulation):
 
         print(self.board.grid.pretty_print())
 
-
-
     def players_move_order(self, players_list, kickoff_team):
         # TODO: [SIM-06] Better movement order based on INITIATIVE, DISTANCE TO BALL, TEAM, ETC
         from random import shuffle
         shuffle(players_list)
         return players_list
 
+
 class DebugMatch(SingleMatch):
+
     def debug_data(self):
         coords = []
 
