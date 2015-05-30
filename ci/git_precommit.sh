@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo 'Checking PEP-8..'
+echo 'Checking PEP-8...'
 exit 1
 
 
