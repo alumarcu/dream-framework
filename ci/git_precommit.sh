@@ -1,5 +1,6 @@
 #!/bin/sh
 
+echo 'Checking PEP-8...'
 # Exclude all auto-generated code
 pep8 dream/ --exclude="migrations" --max-line-length=99
 
