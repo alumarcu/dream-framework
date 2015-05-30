@@ -12,4 +12,4 @@ would like to know how you can contribute.
 ### Installation and Setup
 
 - First, rename your settings_dist.py file to settings.py and customize database params
-- More details coming soon!
+- More details coming soon! 
