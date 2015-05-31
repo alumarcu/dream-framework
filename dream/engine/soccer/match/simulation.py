@@ -2,7 +2,8 @@ from django.utils.translation import ugettext_lazy as _
 from json import loads as json_decode, dumps as json_encode
 from dream.tools import toss_coin
 from dream.engine.soccer.tools import engine_params
-from dream.engine.soccer.exceptions import InitError, SimulationError
+from dream.engine.soccer.exceptions import InitError, LoadError, SimulationError
+from dream.core.models import MatchLog
 
 
 class Simulation:
@@ -37,36 +38,30 @@ class SingleMatch(Simulation):
         self.match = None
         self.tactics = None
         self.board = None
+        self.log = None
+        self.saved_state = None
+        self.journal = {}    # Will record the match journal
 
     def initialize(self):
         self.match = self.init_match(self._match_ids[0])
+
+        # Get last match log entry for this match (if any)
+        match_log = MatchLog.objects\
+            .filter(match=self.match)\
+            .order_by('-sim_minutes_passed', '-sim_last_tick_id')\
+            .first()
+        if type(match_log) is MatchLog:
+            self.log = match_log
+            # TODO: Error handling on invalid JSON
+            self.journal = json_decode(match_log.journal)
+            self.saved_state = json_decode(match_log.last_saved_state)
+
         self.tactics = self.init_tactics()
-        self.create_board()
+        self.board = self.load_board()
 
         # TODO: [SIM-04] Advanced match status-related logic
         self.match.status = self.match.STATUS_SIM_STARTED
         self.match.save()
-
-    def loop(self):
-        game_rules = engine_params(section='rules')
-        in_progress = True
-
-        # TODO: [SIM-04] Advanced match status-related logic
-        self.match.status = self.match.STATUS_SIM_IN_PROGRESS
-        self.match.save()
-
-        grid_state = self.board.grid_state()
-        for team in self.board.teams.values():
-            team.initialize(grid_state)
-
-        print("The game is starting...")
-        while in_progress:
-            # TODO: Check if simulation is paused -> or if a tick should be made
-            # this is a database value controlling the match, and is set async by browser
-            self.tick(grid_state)
-            break  # for now
-
-        exit(_('Loop ended ok!'))
 
     def init_match(self, match_id):
         """
@@ -97,26 +92,33 @@ class SingleMatch(Simulation):
             message = _('Error decoding tactics in match_id %s : %s' % (self.match.pk, e))
             raise SimulationError(message)
 
+    def load_board(self):
+        if self.saved_state is not None:
+            pass
+
+        # Ignore saved_state for now
+        return self.create_board()
+
     def create_board(self):
         from dream.engine.soccer.match.board import Board
-        self.board = Board()
-        self.board.initialize()
+        new_board = Board()
+        new_board.initialize()
 
         # TODO: Board initialization on second half?
 
         # TODO: 'home' and 'away' should be renamed to top and bottom (and define as constants),
         # TODO: since there will be a toss of coin for the field [ home = top, bottom = away ]
-        kickoff_team = toss_coin(self.board.team_keys())
-        for team_key in self.board.team_keys():
+        kickoff_team = toss_coin(new_board.team_keys())
+        for team_key in new_board.team_keys():
 
-            team = self.board.create_field_team(team_key)
+            team = new_board.create_field_team(team_key)
             team.field_players = self.create_field_players(team)
             team.kickoff_first = True if team.key() == kickoff_team else False
 
             for player in team.field_players:
-                self.board.place_player_on_field(player)
+                new_board.place_player_on_field(player)
 
-        print(self.board.grid.pretty_print())
+        return new_board
 
     def create_field_players(self, team):
         from dream.core.models import Npc, NpcAttribute
@@ -140,6 +142,46 @@ class SingleMatch(Simulation):
 
         return field_players
 
+    def loop(self):
+        game_rules = engine_params(section='rules')
+        in_progress = True
+
+        # TODO: [SIM-04] Advanced match status-related logic
+        self.match.status = self.match.STATUS_SIM_IN_PROGRESS
+        self.match.save()
+
+        grid_state = self.board.grid_state()
+        for team in self.board.teams.values():
+            team.initialize(grid_state)
+
+        print("The game is starting...")
+        # TODO: State of the match at startup
+        self.save_state()
+        while in_progress:
+            # TODO: Check if simulation is paused -> or if a tick should be made
+            # this is a database value controlling the match, and is set async by browser
+            self.tick(grid_state)
+            # TODO Save state to journal
+            break  # for now
+
+        exit(_('Loop ended ok!'))
+
+    def save_state(self):
+        state = {'board': self.board.as_dict()}
+        state_json = json_encode(state, separators=(',', ':'))
+
+        new_log = MatchLog(match=self.match)
+        new_log.sim_minutes_passed = self.board.grid_state().game_minute
+        new_log.sim_last_tick_id = self.board.grid_state().tick_id
+        new_log.sim_ticks_per_minute = engine_params(key='match_ticks_per_minute').value
+        new_log.last_saved_state = state_json
+        new_log.journal = self.journal
+
+        new_log.save()
+
+    def load_state(self):
+        pass
+
     def tick(self, grid_state):
         grid_state.tick(new_tick=True)
 
@@ -159,7 +201,6 @@ class SingleMatch(Simulation):
         # exit("TODO: Process players without ball in this tick;")
 
         # Decide order of players
-
         players_to_move = []
         for team in self.board.teams.values():
             players_to_move += team.field_players
@@ -169,7 +210,7 @@ class SingleMatch(Simulation):
         players_to_move = self.players_move_order(players_to_move, player_with_ball.team.key())
 
         for player in players_to_move:
-            # TODO: [SIM-05] A player from the opposing team should follow, check ordering
+            # TODO: [SIM-05] A player from the opposing team should be next, check ordering
             # Actions available: advance, etc.
 
             print("%s has the next action..." % player)

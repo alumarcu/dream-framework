@@ -177,9 +177,6 @@ class Match(Model):
     # This should minimally know about name and capacity
     stadium = IntegerField(null=True, blank=True)
 
-    # A JSON string, contains everything required to
-    # render the game or restore a simulation
-    journal = TextField(blank=True)
     # Tells whether simulation or rendering is currently running
     status = SmallIntegerField(default=1)
     # Number of minutes passed during rendering
@@ -191,6 +188,20 @@ class Match(Model):
 
     class Meta:
         verbose_name_plural = _('matches')
+
+
+class MatchLog(Model):
+    match = ForeignKey(Match)
+    sim_minutes_passed = SmallIntegerField(_('simulation minutes passed'), default=0)
+    sim_last_tick_id = IntegerField(_('last tick id'), default=0)
+    sim_ticks_per_minute = SmallIntegerField(_('simulation ticks per minute param'), default=0)
+    last_modified = DateTimeField(auto_now=True)
+    # A JSON string with all data required to load the game state
+    # and resume after an interruption
+    last_saved_state = TextField(blank=True)
+    # A JSON string with all data required to render the game
+    # after simulation
+    journal = TextField(blank=True)
 
 
 class MatchTeam(Model):

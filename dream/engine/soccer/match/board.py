@@ -14,7 +14,7 @@ class Board:
         self.zones = None
         self.zone_len = None
         self.zone_width = None
-        self.teams = None
+        self.teams = {}
 
     def initialize(self):
         self.grid.initialize()
@@ -26,6 +26,24 @@ class Board:
             'home': None,
             'away': None,
         }
+
+    def load_state(self):
+        pass
+
+    def as_dict(self):
+        data = {
+            'rows': self.rows,
+            'cols': self.cols,
+            'zones': self.zones,
+            'zone_len': self.zone_len,
+            'zone_width': self.zone_width,
+            'grid': self.grid.as_dict(),
+            'teams': {}
+        }
+        for team_key in self.teams:
+            data['teams'][team_key] = self.teams[team_key].as_dict()
+
+        return data
 
     def team_keys(self):
         return [key for key in self.teams.keys()]
@@ -154,6 +172,18 @@ class Grid:
                 ]
         return coords
 
+    def as_dict(self):
+        data = {
+            'width': self.width,
+            'length': self.length,
+            'state': self.state.as_dict(),
+            'matrix': [gc.as_dict()
+                       for g_row in self.matrix
+                       for gc in g_row if len(gc.as_dict()) > 0]
+        }
+
+        return data
+
 
 class GridCell:
 
@@ -204,30 +234,48 @@ class GridCell:
     def is_corner_edge(self):
         return self.y_pos == self.parent_grid.length - 1 or self.y_pos == 0
 
+    def as_dict(self):
+        data = {}
+        has_something = False
+
+        if self.has_ball is True:
+            data['has_ball'] = self.has_ball
+            has_something = True
+        if self.player_with_ball is not None:
+            data['player_with_ball'] = self.player_with_ball.id()
+            has_something = True
+        if len(self.players) > 0:
+            data['players'] = [p.id() for p in self.players]
+            has_something = True
+        if has_something:
+            data['xy'] = [self.x_pos, self.y_pos]
+
+        return data
+
 
 class GridState:
     ACTION_STATUS_PLAY_INTERRUPTED = 'play_interrupted'
     ACTION_STATUS_PLAY_ONGOING = 'play_ongoing'
 
     player_with_ball = None
-    _action_status = None
-    _tick_id = None
-    _game_minute = None
+    action_status = None
+    tick_id = None
+    game_minute = None
 
     def __init__(self):
-        self._tick_id = 0
-        self._game_minute = 0
-        self._action_status = self.ACTION_STATUS_PLAY_INTERRUPTED
+        self.tick_id = 0
+        self.game_minute = 0
+        self.action_status = self.ACTION_STATUS_PLAY_INTERRUPTED
 
     def tick(self, new_tick=False):
         if new_tick is True:
-            self._tick_id += 1
-        return self._tick_id
+            self.tick_id += 1
+        return self.tick_id
 
     def action_status(self, action_status=None):
         if action_status is not None:
-            self._action_status = action_status
-        return self._action_status
+            self.action_status = action_status
+        return self.action_status
 
     def period(self):
         # TODO: Extend this rudimentary implementation that does not account for Extra Time
@@ -236,15 +284,25 @@ class GridState:
         per = float(rules['match_periods'])
         # TODO: Improve this! It assumes there are only two periods always, will not work for
         # TODO: any given X minutes and Y periods
-        if self._game_minute <= (mins / per):
+        if self.game_minute <= (mins / per):
             return 1
-        elif self._game_minute <= mins:
+        elif self.game_minute <= mins:
             return 2
 
     def filters(self):
         return {
             'Game': {
-                'ActionStatus': self._action_status,
-                'TickId': self._tick_id,
+                'ActionStatus': self.action_status,
+                'TickId': self.tick_id,
             }
         }
+
+    def as_dict(self):
+        data = {
+            'action_status': self.action_status,
+            'tick_id': self.tick_id,
+            'game_minute': self.game_minute,
+            'player_with_ball': self.player_with_ball.id()
+        }
+
+        return data

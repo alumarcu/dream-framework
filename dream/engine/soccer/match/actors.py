@@ -21,11 +21,12 @@ class FieldTeam:
     _grid_state = None
     _team_phase = None
     _set_pieces = None
-    kickoff_first = None
-    field_players = None
 
     def __init__(self, team_key):
         self._team_key = team_key
+
+        self.kickoff_first = None
+        self.field_players = []
 
     def key(self):
         return self._team_key
@@ -57,6 +58,20 @@ class FieldTeam:
             }
         }
 
+    def as_dict(self):
+        data = {
+            'team_key': self.key(),
+            'team_phase': self._team_phase,
+            'set_pieces': self._set_pieces,
+            'kickoff_first': self.kickoff_first,
+            'field_players': [],
+        }
+
+        for player in self.field_players:
+            data['field_players'].append(player.as_dict())
+
+        return data
+
     def debug_getplayercoords(self):
         return [player.current_position for player in self.field_players]
 
@@ -84,7 +99,7 @@ class FieldPlayer:
         self.current_position = None
 
         self.team = None
-        self.roles = None
+        self.roles = []
 
         # TODO: [ACT-04] Multiple players can have ball action
         # based on relative distance to
@@ -93,6 +108,16 @@ class FieldPlayer:
         # in this case the action may be performed by
         # the one with best SPEED/INITIATIVE/CONCENTRATION
         self.has_ball_action = False
+
+    def as_dict(self):
+        data = {
+            'npc': self.npc.pk,
+            'pos': self.current_position,
+        }
+        if len(self.roles) > 0:
+            data['roles'] = self.roles
+
+        return data
 
     def init_start_position(self, zone_center, grid):
         from random import randint
@@ -145,6 +170,9 @@ class FieldPlayer:
             return ("%s [%s]" % (self.npc, self.team.key())).upper()
         else:
             raise InitError(_('Uninitialized player'))
+
+    def id(self):
+        return self.npc.pk
 
     def init_actions(self):
         # TODO: [ACT-12] Instantiate the action class
