@@ -2,6 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 from json import loads as json_decode, dumps as json_encode
 from dream.tools import toss_coin
 from dream.engine.soccer.tools import engine_params
+from dream.engine.soccer.match.board import Board
 from dream.engine.soccer.exceptions import InitError, LoadError, SimulationError
 from dream.core.models import MatchLog
 
@@ -92,15 +93,7 @@ class SingleMatch(Simulation):
             message = _('Error decoding tactics in match_id %s : %s' % (self.match.pk, e))
             raise SimulationError(message)
 
-    def load_board(self):
-        if self.saved_state is not None:
-            pass
-
-        # Ignore saved_state for now
-        return self.create_board()
-
     def create_board(self):
-        from dream.engine.soccer.match.board import Board
         new_board = Board()
         new_board.initialize()
 
@@ -155,14 +148,16 @@ class SingleMatch(Simulation):
             team.initialize(grid_state)
 
         print("The game is starting...")
-        # TODO: State of the match at startup
-        self.save_state()
         while in_progress:
             # TODO: Check if simulation is paused -> or if a tick should be made
             # this is a database value controlling the match, and is set async by browser
             self.tick(grid_state)
             # TODO Save state to journal
             break  # for now
+
+        # TODO: State of the match at startup
+        new_state = self.save_state()
+        new_state.save()
 
         exit(_('Loop ended ok!'))
 
@@ -177,10 +172,14 @@ class SingleMatch(Simulation):
         new_log.last_saved_state = state_json
         new_log.journal = self.journal
 
-        new_log.save()
+        return new_log
 
-    def load_state(self):
-        pass
+    def load_board(self):
+        if self.saved_state is None:
+            return self.create_board()
+
+        board_state = self.saved_state['board']
+        return Board.load_state(board_state)
 
     def tick(self, grid_state):
         grid_state.tick(new_tick=True)

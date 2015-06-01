@@ -27,9 +27,6 @@ class Board:
             'away': None,
         }
 
-    def load_state(self):
-        pass
-
     def as_dict(self):
         data = {
             'rows': self.rows,
@@ -44,6 +41,20 @@ class Board:
             data['teams'][team_key] = self.teams[team_key].as_dict()
 
         return data
+
+    def from_dict(self, data):
+        self.rows = data['rows']
+        self.cols = data['cols']
+        self.zones = data['zones']
+        self.zone_len = data['zone_len']
+        self.zone_width = data['zone_width']
+        exit("Board.from_dict()")
+
+    @staticmethod
+    def load_state(data):
+        board = Board()
+        board.from_dict(data)
+        return board
 
     def team_keys(self):
         return [key for key in self.teams.keys()]
