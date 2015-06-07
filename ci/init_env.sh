@@ -17,4 +17,5 @@ ln -s ../../ci/git_precommit.sh pre-commit
 # Back to dreamframework/
 cd ../../
 
+echo 'Done!'
 exit 0
