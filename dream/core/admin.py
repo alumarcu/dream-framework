@@ -12,7 +12,6 @@ admin.site.register(Division)
 admin.site.register(Club)
 admin.site.register(Manager)
 admin.site.register(ManagerAttribute)
-admin.site.register(Npc)
 admin.site.register(NpcAttribute)
 admin.site.register(Team)
 
@@ -68,4 +67,16 @@ class MatchTeamAdmin(admin.ModelAdmin):
         'role',
         'tactics',
         'tactics_ref'
+    )
+
+
+@admin.register(Npc)
+class NpcAdmin(admin.ModelAdmin):
+    list_display = (
+        'first_name',
+        'last_name',
+        'nickname',
+        'id',
+        'team',
+        'club',
     )
