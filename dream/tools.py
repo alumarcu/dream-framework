@@ -24,6 +24,6 @@ def create_reference(data, key=None, key_size=10):
     from hashlib import md5
     md5_object = md5(data.encode('utf-8'))
     reference = md5_object.hexdigest()
-    if type(key) in [str, int]:
-        reference = '%s_%s' % (key.zfill(key_size), reference)
+    key = str(key)
+    reference = '%s_%s' % (key.zfill(key_size), reference)
     return reference.upper()

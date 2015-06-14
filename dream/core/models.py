@@ -186,6 +186,9 @@ class Match(Model):
     created = DateTimeField(auto_now_add=True)
     modified = DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return 'id: %s' % self.pk
+
     class Meta:
         verbose_name_plural = _('matches')
 

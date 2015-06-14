@@ -17,5 +17,12 @@ ln -s ../../ci/git_precommit.sh pre-commit
 # Back to dreamframework/
 cd ../../
 
+# Django migrations
+python3 manage.py migrate auth
+python3 manage.py migrate
+
+# Install fixtures to dreamframework db
+psql -U postgres -d dreamframework -a -f docs/sql/fixtures.sql
+
 echo 'Done!'
 exit 0
