@@ -4,11 +4,6 @@ from dream.core.models import *
 
 
 # TODO: [ADM-01] Customize admin classes
-admin.site.register(Country)
-admin.site.register(League)
-admin.site.register(Attribute)
-admin.site.register(Sport)
-admin.site.register(Division)
 admin.site.register(Club)
 admin.site.register(Manager)
 admin.site.register(ManagerAttribute)
@@ -37,6 +32,50 @@ class MatchStatusFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value() is not None:
             return queryset.filter(status=self.value())
+
+
+class SportFilter(admin.SimpleListFilter):
+    title = _('Sport')
+    parameter_name = 'sport'
+
+    def lookups(self, request, model_admin):
+        return (
+            (Sport.SPORT_SOCCER_KEY, _('Association Football')),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            return queryset.filter(sport__common_key=self.value())
+
+
+class AttributeApplicabilityFilter(admin.SimpleListFilter):
+    title = _('Applies to')
+    parameter_name = 'applies_to'
+
+    def lookups(self, request, model_admin):
+        return (
+            (Attribute.APPLIES_TO_MANAGER, _('Manager')),
+            (Attribute.APPLIES_TO_NPC, _('NPC')),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            return queryset.filter(applies_to=self.value())
+
+
+class AttributeTypeFilter(admin.SimpleListFilter):
+    title = _('Type')
+    parameter_name = 'type'
+
+    def lookups(self, request, model_admin):
+        return (
+            (Attribute.ATTR_TYPE_TRAIT, _('%s - Trait' % Attribute.ATTR_TYPE_TRAIT)),
+            (Attribute.ATTR_TYPE_SKILL, _('%s - Skill' % Attribute.ATTR_TYPE_SKILL)),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            return queryset.filter(type=self.value())
 
 
 # TODO: [ADM-02] Improve existing admin classes
@@ -80,3 +119,80 @@ class NpcAdmin(admin.ModelAdmin):
         'team',
         'club',
     )
+
+
+@admin.register(Country)
+class CountryAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'country_code',
+        'id',
+    )
+    search_fields = [
+        'name',
+        'country_code',
+    ]
+
+
+@admin.register(League)
+class LeagueAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'country',
+        'sport',
+        'min_age',
+        'max_age',
+        'gender',
+        'modified',
+    )
+    search_fields = [
+        'name',
+        'country__name',
+        'country__country_code',
+        'sport',
+    ]
+    list_filter = ('gender', SportFilter)
+
+
+@admin.register(Attribute)
+class AttributeAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'description',
+        'sport',
+        'applies_to',
+        'modified',
+        'type',
+    )
+    search_fields = [
+        'name',
+        'description',
+    ]
+    list_filter = (SportFilter, AttributeApplicabilityFilter, AttributeTypeFilter, )
+
+
+@admin.register(Sport)
+class SportAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'common_key'
+    )
+    search_fields = [
+        'name'
+    ]
+
+
+@admin.register(Division)
+class DivisionAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'league',
+        'level',
+        'teams_num',
+        'modified',
+    )
+    search_fields = [
+        'name',
+        'league__name',
+        'league__country'
+    ]

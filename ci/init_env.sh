@@ -18,8 +18,12 @@ ln -s ../../ci/git_precommit.sh pre-commit
 cd ../../
 
 # Django migrations
+python3 manage.py makemigrations
 python3 manage.py migrate auth
 python3 manage.py migrate
+
+# TODO: [ENV-01] Make sure migrations are correctly applied
+# TODO: [ENV-02] Add two test teams into fixtures
 
 # Install fixtures to dreamframework db
 psql -U postgres -d dreamframework -a -f docs/sql/fixtures.sql

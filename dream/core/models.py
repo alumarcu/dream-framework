@@ -19,7 +19,10 @@ GENDER_CHOICES = (
 
 
 class Sport(Model):
+    SPORT_SOCCER_KEY = 'soccer'
+
     name = CharField(max_length=40)
+    common_key = CharField(max_length=20, blank=True, default='')
     # TODO: [MOD-01] Correspondence between NPC roles and the sports they are
     # relevant to.
     # For example, it should be possible for a club to have the same medics
@@ -263,8 +266,9 @@ class Attribute(Model):
     Defines attributes that can possibly apply to game
     entities, such as the Manager or NPCs;
     """
-    ATTR_TYPE_TRAIT = 1
-    ATTR_TYPE_SKILL = 2
+    ATTR_TYPE_TRAIT = 1     # A trait cannot be improved; it can only be gained or lost
+    ATTR_TYPE_SKILL = 2     # A skill always exists with a certain level
+
     APPLIES_TO_MANAGER = 'manager'
     APPLIES_TO_NPC = 'npc'
 
@@ -273,6 +277,7 @@ class Attribute(Model):
     name = CharField('attribute name', max_length=60)
     description = CharField('short description', max_length=250)
     applies_to = CharField(max_length=10)
+    type = SmallIntegerField('attribute type', default=ATTR_TYPE_SKILL)
 
     created = DateTimeField(auto_now_add=True)
     modified = DateTimeField(auto_now=True)
