@@ -3,6 +3,7 @@ export DJANGO_SETTINGS_MODULE=dream.settings
 
 # TODO: [ENV-01] Drop database and recreate, remove all migrations and redo them
 # TODO: [ENV-02] install fixtures in initenv.
+# TODO: [ENV-03] Check that all dependencies are installed (python version, pep8, etc.)
 
 if [ ! -f manage.py ]; then
     echo 'Script should be run from project root dir!'
