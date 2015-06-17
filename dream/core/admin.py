@@ -4,13 +4,6 @@ from dream.core.models import *
 
 
 # TODO: [ADM-01] Customize admin classes
-admin.site.register(Club)
-admin.site.register(Manager)
-admin.site.register(ManagerAttribute)
-admin.site.register(NpcAttribute)
-admin.site.register(Team)
-
-
 class MatchStatusFilter(admin.SimpleListFilter):
     """
     Allows filtering matches by their status in the admin interface
@@ -194,5 +187,77 @@ class DivisionAdmin(admin.ModelAdmin):
     search_fields = [
         'name',
         'league__name',
-        'league__country'
+        'league__country__name',
+        'league__country__country_code'
+    ]
+
+
+@admin.register(Club)
+class ClubAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'modified',
+        'manager',
+        'country'
+    )
+    search_fields = [
+        'name',
+        'country__name',
+        'country__country_code',
+    ]
+
+
+@admin.register(Manager)
+class ManagerAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'user',
+        'age',
+        'gender',
+        'modified',
+    )
+    search_fields = [
+        'name',
+        'user__first_name',
+        'user__last_name',
+        'user__email',
+        'user__username'
+    ]
+
+
+@admin.register(ManagerAttribute)
+class ManagerAttributeAdmin(admin.ModelAdmin):
+    list_display = (
+        'manager',
+        'attribute',
+        'value',
+    )
+    search_fields = [
+        'attribute__name'
+    ]
+
+
+@admin.register(NpcAttribute)
+class NpcAttribute(admin.ModelAdmin):
+    list_display = (
+        'npc',
+        'attribute',
+        'value'
+    )
+    search_fields = [
+        'attribute__name'
+    ]
+
+
+@admin.register(Team)
+class TeamAdmin(admin.ModelAdmin):
+    list_display = (
+        'club',
+        'name',
+        'gender',
+        'modified',
+    )
+    search_fields = [
+        'name'
+        'club__name',
     ]
