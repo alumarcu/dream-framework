@@ -3,7 +3,6 @@ from django.utils.translation import ugettext_lazy as _
 from dream.core.models import *
 
 
-# TODO: [ADM-01] Customize admin classes
 class MatchStatusFilter(admin.SimpleListFilter):
     """
     Allows filtering matches by their status in the admin interface
@@ -71,12 +70,10 @@ class AttributeTypeFilter(admin.SimpleListFilter):
             return queryset.filter(type=self.value())
 
 
-# TODO: [ADM-02] Improve existing admin classes
-# Several entities should be defined inline inside others
-# see: https://docs.djangoproject.com/en/1.8/intro/tutorial02/
 @admin.register(Match)
 class MatchAdmin(admin.ModelAdmin):
     list_display = (
+        'edit',
         'id',
         'status',
         'division',
@@ -90,6 +87,17 @@ class MatchAdmin(admin.ModelAdmin):
         'division__name',
         'division__league__name'
     ]
+
+    def edit(self, obj):
+        return 'Edit'
+
+    edit.short_description = ''
+    edit.admin_order_field = 'requirement__name'
+
+    class MatchTeamInline(admin.TabularInline):
+        model = MatchTeam
+
+    inlines = [MatchTeamInline]
 
 
 @admin.register(MatchTeam)
@@ -112,6 +120,11 @@ class NpcAdmin(admin.ModelAdmin):
         'team',
         'club',
     )
+
+    class NpcAttributeInline(admin.TabularInline):
+        model = NpcAttribute
+
+    inlines = [NpcAttributeInline]
 
 
 @admin.register(Country)
@@ -145,6 +158,11 @@ class LeagueAdmin(admin.ModelAdmin):
         'sport',
     ]
     list_filter = ('gender', SportFilter)
+
+    class DivisionsInline(admin.TabularInline):
+        model = Division
+
+    inlines = [DivisionsInline]
 
 
 @admin.register(Attribute)
@@ -206,6 +224,13 @@ class ClubAdmin(admin.ModelAdmin):
         'country__country_code',
     ]
 
+    class TeamInline(admin.TabularInline):
+        model = Team
+
+    inlines = [
+        TeamInline
+    ]
+
 
 @admin.register(Manager)
 class ManagerAdmin(admin.ModelAdmin):
@@ -223,6 +248,11 @@ class ManagerAdmin(admin.ModelAdmin):
         'user__email',
         'user__username'
     ]
+
+    class ManagerAttributeInline(admin.TabularInline):
+        model = ManagerAttribute
+
+    inlines = [ManagerAttributeInline]
 
 
 @admin.register(ManagerAttribute)
@@ -260,4 +290,11 @@ class TeamAdmin(admin.ModelAdmin):
     search_fields = [
         'name'
         'club__name',
+    ]
+
+    class NpcInline(admin.TabularInline):
+        model = Npc
+
+    inlines = [
+        NpcInline
     ]
