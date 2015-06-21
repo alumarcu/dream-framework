@@ -209,6 +209,11 @@ class DivisionAdmin(admin.ModelAdmin):
         'league__country__country_code'
     ]
 
+    class TeamDivisionInline(admin.TabularInline):
+        model = TeamDivision
+
+    inlines = [TeamDivisionInline]
+
 
 @admin.register(Club)
 class ClubAdmin(admin.ModelAdmin):
