@@ -1,5 +1,4 @@
 from django.core.management.base import BaseCommand, CommandError
-from dream.engine.soccer.match.simulation import SingleMatch
 import traceback
 
 
@@ -10,6 +9,7 @@ class Command(BaseCommand):
         parser.add_argument('match_id', nargs='?', type=int)
 
     def handle(self, *args, **options):
+        from dream.engine.soccer.match.simulation import SingleMatch
         try:
             sim = SingleMatch()
             sim.add_match(options['match_id'])

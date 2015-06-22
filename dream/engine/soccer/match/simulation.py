@@ -179,7 +179,7 @@ class SingleMatch(Simulation):
             return self.create_board()
 
         board_state = self.saved_state['board']
-        return Board.load_state(board_state)
+        return Board.load_state(board_state, self)
 
     def tick(self, grid_state):
         grid_state.tick(new_tick=True)

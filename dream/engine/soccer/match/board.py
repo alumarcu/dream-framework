@@ -42,18 +42,36 @@ class Board:
 
         return data
 
-    def from_dict(self, data):
+    def from_dict(self, data, simulation):
+        from dream.engine.soccer.match.actors import FieldTeam
         self.rows = data['rows']
         self.cols = data['cols']
+
         self.zones = data['zones']
         self.zone_len = data['zone_len']
         self.zone_width = data['zone_width']
-        exit("Board.from_dict()")
+
+        for team_key in data['teams']:
+            team = FieldTeam(team_key)
+            team.field_players = simulation.create_field_players(team)
+            team.from_dict(data['teams'][team_key])
+            self.teams[team_key] = team
+
+        fp_cache = {}  # player IDs => FieldPlayer
+        for team in self.teams.values():
+            for fp in team.players():
+                fp.team = team
+                fp_cache[fp.id()] = fp
+
+        self.grid = Grid()
+        self.grid.from_dict(data['grid'], fp_cache, simulation)
+
+        return self
 
     @staticmethod
-    def load_state(data):
+    def load_state(data, simulation):
         board = Board()
-        board.from_dict(data)
+        board.from_dict(data, simulation)
         return board
 
     def team_keys(self):
@@ -195,6 +213,28 @@ class Grid:
 
         return data
 
+    def from_dict(self, data, fp_cache, simulation):
+        self.initialize()
+
+        self.width = data['width']
+        self.length = data['length']
+
+        self.state.from_dict(data['state'], fp_cache, simulation)
+
+        for celldata in data['matrix']:
+            cell = self.get_cell(celldata['xy'])
+            if 'has_ball' in celldata:
+                cell.has_ball = True
+            if 'players' in celldata:
+                # load players
+                for player_id in celldata['players']:
+                    self.place_player(fp_cache[player_id])
+
+                if 'player_with_ball' in celldata:
+                    self.give_ball_to(fp_cache[celldata['player_with_ball']])
+
+        return self
+
 
 class GridCell:
 
@@ -269,24 +309,27 @@ class GridState:
     ACTION_STATUS_PLAY_ONGOING = 'play_ongoing'
 
     player_with_ball = None
-    action_status = None
+    _action_status = None
     tick_id = None
     game_minute = None
 
     def __init__(self):
         self.tick_id = 0
         self.game_minute = 0
-        self.action_status = self.ACTION_STATUS_PLAY_INTERRUPTED
+        self.ticks_per_minute = engine_params('match_ticks_per_minute')
+        self._action_status = self.ACTION_STATUS_PLAY_INTERRUPTED
 
     def tick(self, new_tick=False):
         if new_tick is True:
             self.tick_id += 1
+            if self.tick_id % 10 == 0:
+                self.game_minute += 1
         return self.tick_id
 
     def action_status(self, action_status=None):
         if action_status is not None:
-            self.action_status = action_status
-        return self.action_status
+            self._action_status = action_status
+        return self._action_status
 
     def period(self):
         # TODO: Extend this rudimentary implementation that does not account for Extra Time
@@ -303,17 +346,24 @@ class GridState:
     def filters(self):
         return {
             'Game': {
-                'ActionStatus': self.action_status,
+                'ActionStatus': self.action_status(),
                 'TickId': self.tick_id,
             }
         }
 
     def as_dict(self):
         data = {
-            'action_status': self.action_status,
+            'action_status': self.action_status(),
             'tick_id': self.tick_id,
             'game_minute': self.game_minute,
             'player_with_ball': self.player_with_ball.id()
         }
 
         return data
+
+    def from_dict(self, data, fp_cache, simulation):
+        self.tick_id = data['tick_id']
+        self.game_minute = data['game_minute']
+        self.player_with_ball = fp_cache[data['player_with_ball']]
+        self.action_status(data['action_status'])
+        self.ticks_per_minute = simulation.log.sim_ticks_per_minute

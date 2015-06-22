@@ -16,13 +16,17 @@ class DebugView(View):
         sim.initialize()
 
         context = {
-            'message': "FOOO",
+            'message': "test message from view",
             'board_state': sim.debug_data()
         }
 
         return render(request, self.TEAMPLATE_PATH, context)
 
-    def post(self, request):
+    def post(self, request, match_id):
         # TODO: [DBG-01] Process AJAX requests here
         # and return updated debug JSON
+        print(request.POST['MESSAGE'])   # This will print to command line ok
+
+        # Next it will complain that no response was sent
+        # TODO keep up the good work!, make a new tick and send the new board state
         pass

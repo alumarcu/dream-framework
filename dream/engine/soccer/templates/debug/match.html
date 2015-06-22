@@ -6,9 +6,9 @@
     <title></title>
 </head>
 <body>
-Debug interface ahoi!
+{{ request.path }}
 <br/>
-{{message}}
+<button id="next_tick">Next Tick</button>
 <br/>
 <canvas id="soccer_field" width="420" height="660" style="background-color:#009840;">
 </canvas>
@@ -60,6 +60,50 @@ $(document).ready(function() {
     $.each(player_coords, function(idx, coords) {
         placePlayerAt(coords[0], coords[1]);
     });
+
+    function getCookie(name) {
+        // TODO: Use jquery cookie plugin or place this in utilities area
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    var csrftoken = getCookie('csrftoken');
+
+
+    $('#next_tick').click(function() {
+        console.log("Next tick ajax call");
+        $.ajax({
+            url: "{{ request.path }}",
+            method: "POST",
+            data: {"MESSAGE": "HELLO DUDE!"},
+            dataType: "json",
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            },
+            success: function (data, textStatus, xhr) {
+                console.log('Status = ' + textStatus);
+                console.log('data =  ' + data);
+            }
+        })
+    });
+
+
 
     //placePlayerAt(35, 5)
 })

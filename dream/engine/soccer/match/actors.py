@@ -72,6 +72,19 @@ class FieldTeam:
 
         return data
 
+    def from_dict(self, data):
+        self._team_key = data['team_key']
+        self._team_phase = data['team_phase']
+        self._set_pieces = data['set_pieces']
+        self.kickoff_first = data['kickoff_first']
+
+        for fp in self.field_players:
+            playerdata = [pd for pd in data['field_players'] if pd['npc'] == fp.id()]
+            fp.from_dict(playerdata[0])
+
+    def players(self):
+        return self.field_players
+
     def debug_getplayercoords(self):
         return [player.current_position for player in self.field_players]
 
@@ -118,6 +131,11 @@ class FieldPlayer:
             data['roles'] = self.roles
 
         return data
+
+    def from_dict(self, data):
+        self.current_position = tuple(data['pos'])
+        if 'roles' in data:
+            self.roles = data['roles']
 
     def init_start_position(self, zone_center, grid):
         from random import randint
