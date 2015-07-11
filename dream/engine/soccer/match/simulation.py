@@ -159,7 +159,7 @@ class SingleMatch(Simulation):
         new_state = self.save_state()
         new_state.save()
 
-        exit(_('Loop ended ok!'))
+        # exit(_('Loop ended ok!'))
 
     def save_state(self):
         state = {'board': self.board.as_dict()}
@@ -251,4 +251,4 @@ class DebugMatch(SingleMatch):
             'player_coords': coords
         }
 
-        return json_encode(data)
+        return data
