@@ -248,7 +248,7 @@ class DebugMatch(SingleMatch):
             coords += team.debug_getplayercoords()
 
         data = {
-            'player_coords': coords
+            'player_coordinates': coords
         }
 
         return data

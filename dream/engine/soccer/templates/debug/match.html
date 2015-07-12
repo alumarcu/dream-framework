@@ -14,11 +14,33 @@
 </canvas>
 
 <script type="text/javascript" src="{% static 'vendor/jquery/2.1.3/js/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
+
+<script>
+    // TODO: Improved structure and management of static files --> Move Vendor JS files into core ?TBD
+    // TODO: Replace passing boardData by template with a GET request at initialization
+    // TODO: Better OOP/Namespaces
+    // @see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Introduction_to_Object-Oriented_JavaScript
+
+    $(document).ready(function() {
+        var board_data;
+        board_data = $.parseJSON("{{board_state|escapejs}}");
+        drawBoardToCanvas(board_data, 'soccer_field', {
+            gridWidth: 70,
+            gridLength: 110,
+            lineColor: '#4DB779',
+            playerColor: '#000000'
+        });
+    });
+
+</script>
+
+<script type="text/javascript" src="{% static 'js/simulator.js' %}"></script>
 <script>
 $(document).ready(function() {
-    var canvas = document.getElementById('soccer_field');
+    /* var canvas = document.getElementById('soccer_field');
     var ctx = canvas.getContext('2d');
-    var state = $.parseJSON("{{board_state|escapejs}}");
+    var state = ;
     var grid_width = 70,
         grid_length = 110,
         maxw = canvas.width,
@@ -53,34 +75,13 @@ $(document).ready(function() {
         ctx.stroke()
     }
 
-    var player_coords = state.player_coords;
-
-    //console.log(player_coords)
+    var player_coords = state.player_coordinates;
 
     $.each(player_coords, function(idx, coords) {
         placePlayerAt(coords[0], coords[1]);
-    });
+    });*/
 
-    function getCookie(name) {
-        // TODO: Use jquery cookie plugin or place this in utilities area
-        var cookieValue = null;
-        if (document.cookie && document.cookie != '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
+
     var csrftoken = getCookie('csrftoken');
 
 
