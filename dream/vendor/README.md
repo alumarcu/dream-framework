@@ -1,0 +1,1 @@
+All external Django apps and JS/CSS libraries will reside under this package;
