@@ -8,108 +8,21 @@
 <body>
 {{ request.path }}
 <br/>
-<button id="next_tick">Next Tick</button>
+
 <br/>
-<canvas id="soccer_field" width="420" height="660" style="background-color:#009840;">
-</canvas>
+Match ID: <input type="text" name="match_id" id="match_id" value="" />
+<button id="get_ticks">Get Ticks (TODO)</button>
+<button id="get_board">Get Board</button>
+<button id="next_tick">Next Tick + Get Board</button>
+<button id="next_tick">Clear Ticks (TODO)</button>
+<br/>
+
+<canvas id="soccer_field" width="420" height="660" style="background-color:#009840;"></canvas>
+
 
 <script type="text/javascript" src="{% static 'vendor/jquery/2.1.3/js/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/base.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
-
-<script>
-    // TODO: Improved structure and management of static files --> Move Vendor JS files into core ?TBD
-    // TODO: Replace passing boardData by template with a GET request at initialization
-    // TODO: Better OOP/Namespaces
-    // @see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Introduction_to_Object-Oriented_JavaScript
-
-    $(document).ready(function() {
-        var board_data;
-        board_data = $.parseJSON("{{board_state|escapejs}}");
-        drawBoardToCanvas(board_data, 'soccer_field', {
-            gridWidth: 70,
-            gridLength: 110,
-            lineColor: '#4DB779',
-            playerColor: '#000000'
-        });
-    });
-
-</script>
-
 <script type="text/javascript" src="{% static 'js/simulator.js' %}"></script>
-<script>
-$(document).ready(function() {
-    /* var canvas = document.getElementById('soccer_field');
-    var ctx = canvas.getContext('2d');
-    var state = ;
-    var grid_width = 70,
-        grid_length = 110,
-        maxw = canvas.width,
-        maxh = canvas.height;
-
-    ctx.strokeStyle = "#4DB779";
-
-    var hunit = maxh / grid_length,
-        wunit = maxw / grid_width;
-
-    // draw horizontal lines of the grid
-    var x = 0, y = 0;
-    for (var i = 0; i < grid_length; i++) {
-        y = i * hunit;
-        ctx.moveTo(x, y);
-        ctx.lineTo(maxw, y);
-        ctx.stroke();
-    }
-    // draw vertical lines
-    y = 0;
-    for (i = 0; i < grid_width; i++) {
-        x = i * wunit;
-        ctx.moveTo(x, y);
-        ctx.lineTo(x, maxh);
-        ctx.stroke();
-    }
-
-    var placePlayerAt = function(x, y) {
-        ctx.beginPath()
-        ctx.strokeStyle = "#000000";
-        ctx.arc(x * wunit, y * hunit, 4, 0, 2 * Math.PI);
-        ctx.stroke()
-    }
-
-    var player_coords = state.player_coordinates;
-
-    $.each(player_coords, function(idx, coords) {
-        placePlayerAt(coords[0], coords[1]);
-    });*/
-
-
-    var csrftoken = getCookie('csrftoken');
-
-
-    $('#next_tick').click(function() {
-        console.log("Next tick ajax call");
-        $.ajax({
-            url: "{{ request.path }}",
-            method: "POST",
-            data: {"MESSAGE": "HELLO DUDE!"},
-            dataType: "json",
-            beforeSend: function(xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            },
-            success: function (data, textStatus, xhr) {
-                console.log('Status = ' + textStatus);
-                console.log('data =  ' + data);
-            }
-        })
-    });
-
-
-
-    //placePlayerAt(35, 5)
-})
-
-</script>
-
 </body>
 </html>

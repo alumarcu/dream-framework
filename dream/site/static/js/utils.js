@@ -1,11 +1,15 @@
-/**
- * Retrieves the value of a cookie
- * @param name
- * @returns {*}
- */
-var getCookie = function(name) {
-        var cookieValue = null;
+"use strict";
 
+var dream = dream || {};
+
+dream.utils = {
+    /**
+     * Retrieves the value of a cookie
+     * @param name
+     * @returns {*}
+     */
+    getCookie: function(name) {
+        var cookieValue = null;
         if (document.cookie && document.cookie != '') {
             var cookies = document.cookie.split(';');
             for (var i = 0; i < cookies.length; i++) {
@@ -17,11 +21,14 @@ var getCookie = function(name) {
                 }
             }
         }
-
         return cookieValue;
-}
-
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
+    },
+    /**
+     * @param method
+     * @returns {boolean}
+     */
+    csrfSafeMethod: function(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+};
