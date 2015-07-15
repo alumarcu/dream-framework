@@ -1,6 +1,7 @@
 from django.test import TestCase
 from dream.core.models import *
 
+
 class CoreModelsTestCase(TestCase):
     def setUp(self):
         Sport.objects.create(name='Association Football', common_key='soccer')
