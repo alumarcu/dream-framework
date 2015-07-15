@@ -8,6 +8,7 @@ PEP_CHECK_RESULT=$?
 
 if [ $PEP_CHECK_RESULT -eq 1 ];then
     # Found problems
+    echo 'PEP-8 compliance failed. Fix issues and retry!'
     exit 1
 fi
 
@@ -20,10 +21,11 @@ TESTS_OK=$?
 
 if [ $TESTS_OK -eq 1 ];then
     # Found problems
+    echo 'Unit tests failed. Will not commit!'
     exit 1
 fi
 
 
 # No errors
-echo 'error anyway'
-exit 1
+echo 'Commit OK'
+exit 0
