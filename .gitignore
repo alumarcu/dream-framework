@@ -6,4 +6,3 @@ migrations/
 dream/settings.py
 __pycache__/
 *.pyc
-server
