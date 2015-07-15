@@ -16,7 +16,7 @@ dream.Canvas.prototype.initialize = function() {
     var location, params;
 
     location = window.location.href;
-    params = {setup: 1}
+    params = {setup: 1};
 
         $.ajax({
             url: location + '?' + $.param(params),
@@ -100,15 +100,38 @@ dream.Simulator = {
         var location, params;
 
         location = window.location.href;
-        params = {id: match_id, ticks: 1}
+        params = {id: match_id, ticks: 1};
 
         $.ajax({
             url: location + '?' + $.param(params),
             method: 'GET',
             dataType: 'json',
-            success: function(data) {
+            success: function(response) {
                 // do stuff with the data
-                console.log(data);
+                if (typeof(response['data']) == 'object' && $.isArray(response['data'])) {
+                    var htmlHead, table = $('#ticks');
+                    // TODO: Can be done in a slightly better way; but MUST BE DONE WITHOUT any jQuery plugins
+                    table.empty();
+
+                    htmlHead = '<tr>' +
+                        '<th>ID</th>'+
+                        '<th>Match tick id</th>' +
+                        '<th>Match minute</th>' +
+                        '<th>Last modified</th>' +
+                        '<th>Journal</th>' +
+                        '</tr>';
+                    table.append(htmlHead);
+                    $.each(response['data'], function(idx, row) {
+                        var html = '<tr>' +
+                            '<td>' + row['tick_id'] + '</td>' +
+                            '<td>' + row['sim_last_tick_id'] + '</td>' +
+                            '<td>' + row['sim_minutes_passed'] + '</td>' +
+                            '<td>' + row['last_modified'] + '</td>' +
+                            '<td>' + row['journal'] + '</td>' +
+                            '</tr>';
+                        table.append(html);
+                    })
+                }
             }
         });
     },
@@ -117,7 +140,7 @@ dream.Simulator = {
         var location, params;
 
         location = window.location.href;
-        params = {id: match_id, board: 1}
+        params = {id: match_id, board: 1};
 
         $.ajax({
             url: location + '?' + $.param(params),
@@ -134,7 +157,7 @@ dream.Simulator = {
         var location, params;
 
         location = window.location.href;
-        params = {id: match_id, next_tick: 1}
+        params = {id: match_id, next_tick: 1};
 
         $.ajax({
             url: location + '?' + $.param(params),
@@ -146,8 +169,6 @@ dream.Simulator = {
             }
         });
     }
-
-
 };
 
 $(document).ready(function() {
@@ -155,7 +176,6 @@ $(document).ready(function() {
 
     canvas = new dream.Canvas('soccer_field');
     canvas.initialize();
-
 
     $('#get_ticks').click(function() {
         var match_id;

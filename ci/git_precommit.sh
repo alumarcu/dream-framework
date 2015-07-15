@@ -12,5 +12,19 @@ if [ $PEP_CHECK_RESULT -eq 1 ];then
     exit 1
 fi
 
+# Unit tests
+echo 'Running unit tests...'
+
+python3 manage.py test
+
+TESTS_OK=$?
+
+if [ $TESTS_OK -eq 1 ];then
+    # Found problems
+    exit 1
+fi
+
+
 # No errors
-exit 0
+echo 'error anyway'
+exit 1
