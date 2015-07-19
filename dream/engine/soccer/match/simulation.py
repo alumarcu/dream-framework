@@ -247,8 +247,11 @@ class DebugMatch(SingleMatch):
             team = self.board.teams[team_key]
             coords += team.debug_getplayercoords()
 
+        ball_position = self.board.grid_state().player_with_ball.current_position
+
         data = {
-            'player_coordinates': coords
+            'player_coordinates': coords,
+            'ball_coordinates': ball_position
         }
 
         return data

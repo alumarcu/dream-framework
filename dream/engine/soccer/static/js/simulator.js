@@ -46,7 +46,7 @@ dream.Canvas.prototype.draw_board = function(board_data) {
     var grid_width, grid_length,
         canvas_width, canvas_length,
         unit_of_width, unit_of_length,
-        x, y, i, player_coordinates;
+        x, y, i, player_coordinates, ball_coordinates;
 
     grid_width = dream.Canvas.settings['grid_width'];
     grid_length = dream.Canvas.settings['grid_length'];
@@ -81,7 +81,20 @@ dream.Canvas.prototype.draw_board = function(board_data) {
     }
 
     player_coordinates = board_data['player_coordinates'];
+    ball_coordinates = board_data['ball_coordinates'];
 
+    // TODO: Optimized and specialized methods for drawing
+    // draw ball
+    this.context.beginPath();
+    //this.context.strokeStyle = '#000000';
+    this.context.fillStyle = '#FF0000';
+    this.context.arc(ball_coordinates[0] * unit_of_length, ball_coordinates[1] * unit_of_width, 4, 0, 2 * Math.PI);
+    //this.context.stroke();
+    this.context.fill();
+
+    console.log('HERE ok')
+
+    // draw players
     for (i = 0; i < player_coordinates.length; i++) {
         var coords = player_coordinates[i];
         x = coords[0];
