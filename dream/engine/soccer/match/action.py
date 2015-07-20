@@ -47,9 +47,8 @@ class ActionContext:
         """
         from dream.engine.soccer.models import ActionRequirement
         requirements = ActionRequirement.objects.filter(action=player_action)
-        # Stack requirements with can_be
-        print(">>>>>>>>>>", player_action.name)
 
+        # Stack requirements with can_be
         action_context = {}
 
         for action_requirement in requirements:
@@ -96,18 +95,11 @@ class ActionContext:
         return {req_key: req_data}
 
     def meets_requirement(self, req_key, req_data):
-        from dream.engine.soccer.models import Requirement, ActionRequirement
-        # if type(action_requirement) != PlayerActionRequirement:
-        #     exit("Bad player requirement")
+        from dream.engine.soccer.models import ActionRequirement
 
         current_val = None
         if req_key in self._current:
             current_val = self._current[req_key]
-        print("vvvvvvvvvvvvvvvvv")
-        print(req_key)
-        print(current_val)
-        print(req_data)
-        print("^^^^^^^^^^^^^^^^^")
 
         req_value = req_data['required_values']
         if req_data['condition'] == ActionRequirement.CONDITION_IS:

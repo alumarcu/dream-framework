@@ -209,9 +209,6 @@ class FieldPlayer:
         context = ActionContext(filters)
         allowed_actions = []
 
-        print("-------------")
-        print(filters)
-
         for action in FieldPlayer.all_actions:
             if context.can_perform_action(action):
                 allowed_actions.append(action)

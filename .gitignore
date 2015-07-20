@@ -4,5 +4,6 @@ dream/core/migrations/
 dream/engine/soccer/migrations/
 migrations/
 dream/settings.py
+logs/*.*
 __pycache__/
 *.pyc

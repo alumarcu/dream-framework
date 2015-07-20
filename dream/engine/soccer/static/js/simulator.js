@@ -59,6 +59,9 @@ dream.Canvas.prototype.draw_board = function(board_data) {
     unit_of_width = canvas_length / grid_length;
     unit_of_length = canvas_width / grid_width;
 
+    // Clear the canvas of previous drawings
+    this.context.clearRect(0, 0, canvas_width, canvas_length);
+
     x = 0; y = 0;
 
     // draws all horizontal lines on the canvas

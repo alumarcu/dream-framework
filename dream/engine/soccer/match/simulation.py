@@ -1,5 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 from json import loads as json_decode, dumps as json_encode
+from logging import getLogger
 from dream.tools import toss_coin
 from dream.engine.soccer.tools import engine_params
 from dream.engine.soccer.match.board import Board
@@ -10,6 +11,7 @@ from dream.core.models import MatchLog
 class Simulation:
     def __init__(self):
         self._match_ids = []
+        self.logger = getLogger(__name__)
 
     # TODO: [SIM-02] Look into abstract classes in Python and decide whether its the case here
     # Possible example: http://zaiste.net/2013/01/abstract_classes_in_python/
@@ -185,16 +187,16 @@ class SingleMatch(Simulation):
         grid_state.tick(new_tick=True)
 
         player_with_ball = grid_state.player_with_ball
-        print("%s has the ball..." % player_with_ball)
+        self.logger.debug("%s has the ball..." % player_with_ball)
 
         possible_actions = player_with_ball.get_possible_actions(grid_state.filters())
-        print("Possible actions are: ", possible_actions)
+        self.logger.debug("Possible actions are: %s" % possible_actions)
 
         action = player_with_ball.decide_action(possible_actions)
-        print("Decided action is: ", action)
+        self.logger.debug("Decided action is: %s" % action)
 
         player_with_ball.perform_action(action, self.board)
-        print("Action performed.")
+        self.logger.debug("Action performed.")
 
         # print(self.board.grid.pretty_print())
         # exit("TODO: Process players without ball in this tick;")

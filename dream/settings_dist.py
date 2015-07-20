@@ -106,3 +106,38 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'base': {
+            'format': '%(levelname)s %(message)s'
+        }
+    },
+    'handlers': {
+        'handler_file_debug': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/home/alm/Dev/Dream11/dreamframework/logs/debug.log',
+            'formatter': 'base',
+        },
+        'handler_console_debug': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'base',
+        }
+    },
+    'loggers': {
+        'dream.core': {
+            'handlers': ['handler_file_debug', 'handler_console_debug'],
+            'propagate': True,
+            'level': 'DEBUG'
+        },
+        'dream.engine': {
+            'handlers': ['handler_file_debug', 'handler_console_debug'],
+            'propagate': True,
+            'level': 'DEBUG'
+        }
+    },
+}

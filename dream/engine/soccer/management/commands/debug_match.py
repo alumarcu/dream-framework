@@ -11,6 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from dream.engine.soccer.match.simulation import SingleMatch
         try:
+
             sim = SingleMatch()
             sim.add_match(options['match_id'])
             sim.initialize()
