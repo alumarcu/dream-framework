@@ -111,8 +111,8 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'base': {
-            'format': '%(levelname)s %(message)s'
+        'default': {
+            'format': '%(message)s'
         }
     },
     'handlers': {
@@ -120,12 +120,12 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': '/home/alm/Dev/Dream11/dreamframework/logs/debug.log',
-            'formatter': 'base',
+            'formatter': 'default',
         },
         'handler_console_debug': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'base',
+            'formatter': 'default',
         }
     },
     'loggers': {

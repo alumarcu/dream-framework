@@ -27,3 +27,28 @@ def create_reference(data, key=None, key_size=10):
     key = str(key)
     reference = '%s_%s' % (key.zfill(key_size), reference)
     return reference.upper()
+
+
+class Logger:
+    DEBUG = 10
+    INFO = 20
+    WARNING = 30
+    ERROR = 40
+    CRITICAL = 50
+
+    def __init__(self, module):
+        from logging import getLogger
+        self.logger = getLogger(module)
+
+    def log_with_date(self, message, level):
+        import logging
+        from datetime import datetime
+        time_now = datetime.now()
+        formatted_time = time_now.strftime('%Y-%m-%d %H:%M:%S.%f')
+        self.logger.log(level, '[ %s ][ %s ] %s' % (
+            logging.getLevelName(level),
+            formatted_time,
+            message))
+
+    def log(self, message='', level=DEBUG):
+        self.log_with_date(message, level)
