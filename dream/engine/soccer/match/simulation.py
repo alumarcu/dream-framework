@@ -10,7 +10,7 @@ from dream.core.models import MatchLog
 class Simulation:
     def __init__(self):
         self._match_ids = []
-        self.logger = Logger(__name__)
+        self.logger = Logger(__name__, Logger.default_message)
 
     # TODO: [SIM-02] Look into abstract classes in Python and decide whether its the case here
     # Possible example: http://zaiste.net/2013/01/abstract_classes_in_python/
@@ -148,7 +148,7 @@ class SingleMatch(Simulation):
         for team in self.board.teams.values():
             team.initialize(grid_state)
 
-        print("The game is starting...")
+        self.logger.log('Game started.')
         while in_progress:
             # TODO: Check if simulation is paused -> or if a tick should be made
             # this is a database value controlling the match, and is set async by browser
@@ -185,17 +185,19 @@ class SingleMatch(Simulation):
     def tick(self, grid_state):
         grid_state.tick(new_tick=True)
 
+        simtime = (grid_state.game_minute, grid_state.tick())
+
         player_with_ball = grid_state.player_with_ball
-        self.logger.log("%s has the ball..." % player_with_ball)
+        self.board.log("%s has the ball." % player_with_ball)
 
         possible_actions = player_with_ball.get_possible_actions(grid_state.filters())
-        self.logger.log("Possible actions are: %s" % possible_actions)
+        self.board.log("Possible actions are: %s" % possible_actions)
 
         action = player_with_ball.decide_action(possible_actions)
-        self.logger.log("Decided action is: %s" % action)
+        self.board.log("Decided action is: %s" % action)
 
         player_with_ball.perform_action(action, self.board)
-        self.logger.log("Action performed.")
+        self.board.log("Action performed.")
 
         # print(self.board.grid.pretty_print())
         # exit("TODO: Process players without ball in this tick;")
@@ -213,24 +215,24 @@ class SingleMatch(Simulation):
             # TODO: [SIM-05] A player from the opposing team should be next, check ordering
             # Actions available: advance, etc.
 
-            print("%s has the next action..." % player)
+            self.logger.log("%s has the next action." % player, simtime=simtime)
 
             possible_actions = player.get_possible_actions(grid_state.filters())
-            print("Possible actions are: ", possible_actions)
+            self.logger.log("Possible actions are: %s" % possible_actions, simtime=simtime)
 
             if len(possible_actions) == 0:
                 # TODO: [SIM-07] There should always be actions, this should be a fail-safe only
                 break  # continue
 
             action = player_with_ball.decide_action(possible_actions)
-            print("Decided action is: ", action)
+            self.logger.log("Decided action is: %s" % action, simtime=simtime)
 
             player_with_ball.perform_action(action, self.board)
-            print("Action performed.")
+            self.logger.log("Action performed.", simtime=simtime)
 
             break
 
-        print(self.board.grid.pretty_print())
+        # print(self.board.grid.pretty_print())
 
     def players_move_order(self, players_list, kickoff_team):
         # TODO: [SIM-06] Better movement order based on INITIATIVE, DISTANCE TO BALL, TEAM, ETC

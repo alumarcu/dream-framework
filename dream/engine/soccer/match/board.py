@@ -1,6 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
-from dream.engine.soccer.tools import engine_params
+from dream.engine.soccer.tools import engine_params, simulation_log_message
 from dream.engine.soccer.exceptions import InitError
+from dream.tools import Logger
 
 
 class Board:
@@ -16,10 +17,16 @@ class Board:
         self.zone_width = None
         self.teams = {}
 
+        self.logger = Logger(__name__, simulation_log_message)
+
     def initialize(self):
         self.grid.initialize()
         self.initialize_zones()
         self.initialize_teams()
+
+    def log(self, message, level=Logger.LEVEL_DEBUG, **kwargs):
+        kwargs['simtime'] = (self.grid_state().game_minute, self.grid_state().tick_id)
+        self.logger.log(message, level, **kwargs)
 
     def initialize_teams(self):
         self.teams = {

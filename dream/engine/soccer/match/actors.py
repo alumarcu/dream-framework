@@ -233,16 +233,14 @@ class FieldPlayer:
             raise LoopError(_('Invalid player action'))
 
         # Import the right class
-
-        print("Performing action...")
-
         from dream.engine.soccer.match.action import ActionFactory
+
+        board.log('%s is brewing something.' % self.npc)
 
         factory = ActionFactory.get()
         action_cls = factory.create_action(player_action.name)
         action_inst = action_cls()
 
-        print(action_inst)
         action_inst.perform(player=self, board=board)
 
         # action_inst.set_player(self)
