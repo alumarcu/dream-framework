@@ -3,14 +3,14 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Dream11's documentation!
-===================================
+Dream Framework
+===============
 
 Contents:
 
 .. toctree::
    :maxdepth: 3
 
-.. automodule:: dream.core.models
-   :members:
+   core.rst
+   engine.rst
 
