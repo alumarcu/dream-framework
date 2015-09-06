@@ -1,4 +1,3 @@
-testxx/
 .idea/
 dream/core/migrations/
 dream/engine/soccer/migrations/
@@ -7,3 +6,4 @@ dream/settings.py
 logs/*.*
 __pycache__/
 *.pyc
+docs/sphinx/build
