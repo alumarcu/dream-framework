@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
-from dream.engine.soccer.views import DebugView
+from dream.engine.soccer.views import SimulatorView
 
 urlpatterns = patterns(
     '',
-    url(r'^debug/simulator/$', DebugView.as_view())
+    url(r'^dev/simulator/$', SimulatorView.as_view(), name='dev-simulator')
 )

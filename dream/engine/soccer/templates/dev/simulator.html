@@ -1,15 +1,11 @@
+{% extends "admin.html" %}
 {% load staticfiles %}
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
-{{ request.path }}
-<br/>
 
-<br/>
+{% block title %}
+{{ request.path }}
+{% endblock %}
+
+{% block content %}
 Match ID: <input type="text" name="match_id" id="match_id" value="" />
 <button id="get_ticks">Get Ticks</button>
 <button id="get_board">Get Board</button>
@@ -20,11 +16,11 @@ Match ID: <input type="text" name="match_id" id="match_id" value="" />
 
 <!-- Nice canvas tutorial: http://diveintohtml5.info/canvas.html -->
 <canvas id="soccer_field" width="420" height="660" style="background-color:#009840;"></canvas>
+{% endblock %}
 
-
-<script type="text/javascript" src="{% static 'vendor/jquery/2.1.3/js/jquery.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/base.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/simulator.js' %}"></script>
-</body>
-</html>
+{% block javascripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static 'js/base.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/simulator.js' %}"></script>
+{% endblock %}

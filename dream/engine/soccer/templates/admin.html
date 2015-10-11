@@ -1,0 +1,48 @@
+{% extends "_base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+{% block body %}
+    {% block top_panel %}
+    <nav class="top-bar" data-topbar role="navigation">
+        <ul class="title-area">
+            <li class="name">
+                <h1><a href="#">Dream11 Dev Utility</a></h1>
+            </li>
+        </ul>
+
+        <section class="top-bar-section">
+            <!-- Right Nav Section -->
+            <!--
+            <ul class="right">
+                <li class="active"><a href="#">Right Button Active</a></li>
+                <li class="has-dropdown">
+                    <a href="#">Right Button Dropdown</a>
+                    <ul class="dropdown">
+                        <li><a href="#">First link in dropdown</a></li>
+                        <li class="active"><a href="#">Active link in dropdown</a></li>
+                    </ul>
+                </li>
+            </ul>
+            -->
+        </section>
+    </nav>
+    {% endblock %}
+
+    <div class="row fluid">
+        <div class="small-12 large-2 columns">
+        {% block side_panel %}
+            <ul class="side-nav">
+                <li><a href="{% url 'dev-simulator' %}">{% trans 'Simulator' %}</a></li>
+                <li><a href="#">{% trans 'Teams' %}</a></li>
+                <li><a href="#">{% trans 'Matches' %}</a></li>
+            </ul>
+        {% endblock %}
+        </div>
+        <div class="small-12 large-10 columns">
+        {% block content %}
+
+        {% endblock %}
+        </div>
+    </div>
+{% endblock %}

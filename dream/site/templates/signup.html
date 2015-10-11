@@ -1,7 +1,7 @@
 {% extends "_base.html" %}
 {% load staticfiles %}
 
-{% block content %}
+{% block body %}
     {% url 'signup' as this_page_url %}
 
     <div class="row">
@@ -18,5 +18,4 @@
 
 {% block javascripts %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static 'ui_base/js/test.js' %}"></script>
 {% endblock %}
