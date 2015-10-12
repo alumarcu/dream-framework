@@ -1,21 +1,52 @@
 {% extends "admin.html" %}
 {% load staticfiles %}
+{% load i18n %}
 
 {% block title %}
-{{ request.path }}
+{% trans 'DDU: Simulator' %}
 {% endblock %}
 
-{% block content %}
-Match ID: <input type="text" name="match_id" id="match_id" value="" />
-<button id="get_ticks">Get Ticks</button>
-<button id="get_board">Get Board</button>
-<button id="next_tick">Next Tick + Get Board</button>
-<!-- <button id="next_tick">Clear Ticks</button> -->
-<br/>
-<table id="ticks"></table>
+{# request.path #}
 
-<!-- Nice canvas tutorial: http://diveintohtml5.info/canvas.html -->
-<canvas id="soccer_field" width="420" height="660" style="background-color:#009840;"></canvas>
+{% block content %}
+&nbsp;
+<div class="row fluid">
+    <div class="small-12 large-8 columns">
+        <div class="row fluid">
+            <div class="small-2 large-2 columns">
+                <label for="select-match">{% trans 'Load Match' %}</label>
+            </div>
+            <div class="small-8 large-8 columns">
+                <select name="select-match" id="select-match">
+                    <option value="" disabled selected>{% trans 'Select Match' %}</option>
+                    {% for id, match in matches.items %}
+                    <option value="{{ id }}">{{ match.home }} - {{ match.away }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="small-2 large-2 columns">
+                <button  name="btn-match-selected" id="btn-match-selected">{% trans 'OK' %}</button>
+            </div>
+        </div>
+
+
+        Match ID: <input type="text" name="match_id" id="match_id" value="" />
+        <button id="get_ticks">Get Ticks</button>
+        <button id="get_board">Get Board</button>
+        <button id="next_tick">Next Tick + Get Board</button>
+        <!-- <button id="next_tick">Clear Ticks</button> -->
+        <br/>
+        <table id="ticks"></table>
+
+    </div>
+
+    <div class="small-12 large-4 columns">
+        <div class="row fluid">
+            <!-- Nice canvas tutorial: http://diveintohtml5.info/canvas.html -->
+            <canvas id="soccer_field" width="420" height="660" style="background-color:#009840;"></canvas>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block javascripts %}

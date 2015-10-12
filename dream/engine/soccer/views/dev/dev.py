@@ -13,6 +13,23 @@ class SimulatorView(View):
 
     def get(self, request):
         context = {}
+
+        # **** Fetches matches and teams from the dev league ****
+        from dream.core.models import MatchTeam
+        match_teams = MatchTeam.objects.\
+            filter(match__division__league=1).\
+            values('match__id', 'team__name', 'role')
+
+        matches = {}
+        for team in match_teams:
+            if team['match__id'] not in matches:
+                matches[team['match__id']] = {}
+            matches[team['match__id']][team['role']] = team['team__name']
+
+        context['matches'] = matches
+        # **** End fetching matches ****
+
+        # **** AJAX Calls ****
         query = request.GET
 
         if 'id' in query:
@@ -67,6 +84,7 @@ class SimulatorView(View):
             }
 
             return JsonResponse(context)
+        # **** END AJAX Calls ****
 
         return render(request, self.TEAMPLATE_PATH, context)
 
