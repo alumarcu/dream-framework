@@ -8,32 +8,32 @@
 
 {# request.path #}
 
+{% block stylesheets %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/simulator.css' %}">
+{% endblock %}
+
 {% block content %}
 &nbsp;
 <div class="row fluid">
     <div class="small-12 large-8 columns">
         <div class="row fluid">
-            <div class="small-2 large-2 columns">
-                <label for="select-match">{% trans 'Load Match' %}</label>
-            </div>
-            <div class="small-8 large-8 columns">
-                <select name="select-match" id="select-match">
-                    <option value="" disabled selected>{% trans 'Select Match' %}</option>
-                    {% for id, match in matches.items %}
-                    <option value="{{ id }}">{{ match.home }} - {{ match.away }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="small-2 large-2 columns">
-                <button  name="btn-match-selected" id="btn-match-selected">{% trans 'OK' %}</button>
+            {# Load game #}
+            <div class="small-12 large-12 columns">
+                <div class="spotlight">
+                    <select name="select-match" id="select-match" class="no-margins max-wide400">
+                        <option value="" disabled selected>{% trans 'Pick game' %}</option>
+                        {% for id, match in matches.items %}
+                        <option value="{{ id }}">#{{ id }}: {{ match.home }} - {{ match.away }}</option>
+                        {% endfor %}
+                    </select>
+                    <button name="btn-match-selected" id="btn-match-selected" class="no-margins form-button">{% trans 'Load game' %}</button>
+                </div>
             </div>
         </div>
 
-
-        Match ID: <input type="text" name="match_id" id="match_id" value="" />
-        <button id="get_ticks">Get Ticks</button>
-        <button id="get_board">Get Board</button>
-        <button id="next_tick">Next Tick + Get Board</button>
+        <!-- <button id="get_ticks">Get Ticks</button>
+        <button id="next_tick">Next Tick + Get Board</button> -->
         <!-- <button id="next_tick">Clear Ticks</button> -->
         <br/>
         <table id="ticks"></table>
@@ -41,9 +41,70 @@
     </div>
 
     <div class="small-12 large-4 columns">
-        <div class="row fluid">
-            <!-- Nice canvas tutorial: http://diveintohtml5.info/canvas.html -->
-            <canvas id="soccer_field" width="420" height="660" style="background-color:#009840;"></canvas>
+        <div class="row">
+            <div class="small-12 columns">
+                <ul class="icon-bar five-up no-margins">
+                    <li>
+                        <a class="item" href="javascript:void(0)">
+                            <img src="{% static 'img/ticks-previous.png' %}" alt="Previous"/>
+                            <label>Previous</label>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="item" href="javascript:void(0)">
+                            <img src="{% static 'img/ticks-next.png' %}" alt="Next"/>
+                            <label>Next</label>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="item" href="javascript:void(0)">
+                            <img src="{% static 'img/ticks-new.png' %}" alt="New"/>
+                            <label>New</label>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="item" href="javascript:void(0)">
+                            <img src="{% static 'img/ticks-delete.png' %}" alt="Delete"/>
+                            <label>Delete</label>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="small-3 columns">
+                <span>#123</span>
+            </div>
+            <div class="small-4 columns text-center">
+                <span>Home Team</span>
+            </div>
+            <div class="small-1 columns text-center">
+                <span>vs</span>
+            </div>
+            <div class="small-4 columns text-center">
+                <span>Away Team</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="small-3 columns">
+                <span>12' [565]</span>
+            </div>
+            <div class="small-4 columns text-center">
+                <span>1</span>
+            </div>
+            <div class="small-1 columns text-center">
+                <span>&nbsp;</span>
+            </div>
+            <div class="small-4 columns text-center">
+                <span>2</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="small-12 columns">
+                {# Match canvas #}
+                <!-- Nice canvas tutorial: http://diveintohtml5.info/canvas.html -->
+                <canvas id="field-canvas" width="420" height="660"></canvas>
+            </div>
         </div>
     </div>
 </div>

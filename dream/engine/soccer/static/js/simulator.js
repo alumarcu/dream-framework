@@ -54,7 +54,7 @@ dream.Canvas.prototype.draw_board = function(board_data) {
     canvas_width = this.canvas.width;
     canvas_length = this.canvas.height;
 
-    this.context.strokeStyle = '#4DB779';
+    this.context.strokeStyle = '#2F522E';
 
     unit_of_width = canvas_length / grid_length;
     unit_of_length = canvas_width / grid_width;
@@ -68,8 +68,8 @@ dream.Canvas.prototype.draw_board = function(board_data) {
     for (i = 0; i < grid_length; i++) {
         y = i * unit_of_width;
 
-        this.context.moveTo(x, y);
-        this.context.lineTo(canvas_width, y);
+        this.context.moveTo(x, y + 0.5);
+        this.context.lineTo(canvas_width, y + 0.5);
         this.context.stroke();
     }
 
@@ -78,8 +78,8 @@ dream.Canvas.prototype.draw_board = function(board_data) {
     for (i = 0; i < grid_width; i++) {
         x = i * unit_of_length;
 
-        this.context.moveTo(x, y);
-        this.context.lineTo(x, canvas_length);
+        this.context.moveTo(x, y + 0.5);
+        this.context.lineTo(x, canvas_length + 0.5);
         this.context.stroke();
     }
 
@@ -87,17 +87,9 @@ dream.Canvas.prototype.draw_board = function(board_data) {
     ball_coordinates = board_data['ball_coordinates'];
 
     // TODO: Optimized and specialized methods for drawing
-    // draw ball
-    this.context.beginPath();
-    //this.context.strokeStyle = '#000000';
-    this.context.fillStyle = '#FF0000';
-    this.context.arc(ball_coordinates[0] * unit_of_length, ball_coordinates[1] * unit_of_width, 4, 0, 2 * Math.PI);
-    //this.context.stroke();
-    this.context.fill();
-
-    console.log('HERE ok')
 
     // draw players
+    this.context.lineWidth = 3;
     for (i = 0; i < player_coordinates.length; i++) {
         var coords = player_coordinates[i];
         x = coords[0];
@@ -108,91 +100,127 @@ dream.Canvas.prototype.draw_board = function(board_data) {
         this.context.arc(x * unit_of_length, y * unit_of_width, 4, 0, 2 * Math.PI);
         this.context.stroke();
     }
+    this.context.lineWidth = 1;
+
+    // draw ball
+    this.context.beginPath();
+    //this.context.strokeStyle = '#000000';
+
+    this.context.fillStyle = '#FF0000';
+    this.context.arc(ball_coordinates[0] * unit_of_length, ball_coordinates[1] * unit_of_width, 4, 0, 2 * Math.PI);
+    //this.context.stroke();
+    this.context.fill();
+
+
 
 };
 
-dream.Simulator = {
-    get_ticks_for_match: function(match_id) {
-        var location, params;
+dream.Simulator = function() {
+    //initialize simulator
+};
 
-        location = window.location.href;
-        params = {id: match_id, ticks: 1};
+dream.Simulator.get_ticks_for_match = function(match_id) {
+    var location, params;
 
-        $.ajax({
-            url: location + '?' + $.param(params),
-            method: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                // do stuff with the data
-                if (typeof(response['data']) == 'object' && $.isArray(response['data'])) {
-                    var htmlHead, table = $('#ticks');
-                    // TODO: Can be done in a slightly better way; but MUST BE DONE WITHOUT any jQuery plugins
-                    table.empty();
+    location = window.location.href;
+    params = {id: match_id, ticks: 1};
 
-                    htmlHead = '<tr>' +
-                        '<th>ID</th>'+
-                        '<th>Match tick id</th>' +
-                        '<th>Match minute</th>' +
-                        '<th>Last modified</th>' +
-                        '<th>Journal</th>' +
+    $.ajax({
+        url: location + '?' + $.param(params),
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            // do stuff with the data
+            if (typeof(response['data']) == 'object' && $.isArray(response['data'])) {
+                var htmlHead, table = $('#ticks');
+                // TODO: Can be done in a slightly better way; but MUST BE DONE WITHOUT any jQuery plugins
+                table.empty();
+
+                htmlHead = '<tr>' +
+                    '<th>ID</th>'+
+                    '<th>Match tick id</th>' +
+                    '<th>Match minute</th>' +
+                    '<th>Last modified</th>' +
+                    '<th>Journal</th>' +
+                    '</tr>';
+                table.append(htmlHead);
+                $.each(response['data'], function(idx, row) {
+                    var html = '<tr>' +
+                        '<td>' + row['tick_id'] + '</td>' +
+                        '<td>' + row['sim_last_tick_id'] + '</td>' +
+                        '<td>' + row['sim_minutes_passed'] + '</td>' +
+                        '<td>' + row['last_modified'] + '</td>' +
+                        '<td>' + row['journal'] + '</td>' +
                         '</tr>';
-                    table.append(htmlHead);
-                    $.each(response['data'], function(idx, row) {
-                        var html = '<tr>' +
-                            '<td>' + row['tick_id'] + '</td>' +
-                            '<td>' + row['sim_last_tick_id'] + '</td>' +
-                            '<td>' + row['sim_minutes_passed'] + '</td>' +
-                            '<td>' + row['last_modified'] + '</td>' +
-                            '<td>' + row['journal'] + '</td>' +
-                            '</tr>';
-                        table.append(html);
-                    })
-                }
+                    table.append(html);
+                })
             }
-        });
-    },
+        }
+    });
+};
 
-    get_board_for_match: function(match_id, canvas) {
-        var location, params;
+dream.Simulator.get_board_for_match = function(match_id, canvas) {
+    var location, params;
 
-        location = window.location.href;
-        params = {id: match_id, board: 1};
+    location = window.location.href;
+    params = {id: match_id, board: 1};
+console.log(location + '?' + $.param(params))
+    $.ajax({
+        url: location + '?' + $.param(params),
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            // do stuff with the data
+            canvas.load_board(data);
+        }
+    });
+};
 
-        $.ajax({
-            url: location + '?' + $.param(params),
-            method: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                // do stuff with the data
-                canvas.load_board(data);
-            }
-        });
-    },
+dream.Simulator.create_next_tick = function(match_id, canvas) {
+    var location, params;
 
-    create_next_tick: function(match_id, canvas) {
-        var location, params;
+    location = window.location.href;
+    params = {id: match_id, next_tick: 1};
 
-        location = window.location.href;
-        params = {id: match_id, next_tick: 1};
+    $.ajax({
+        url: location + '?' + $.param(params),
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            // do stuff with the data
+            canvas.load_board(data);
+        }
+    });
+};
 
-        $.ajax({
-            url: location + '?' + $.param(params),
-            method: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                // do stuff with the data
-                canvas.load_board(data);
-            }
-        });
+dream.Simulator.handlers = {};
+
+dream.Simulator.handlers.select_match = function(event) {
+    var match_id, selected_option, canvas;
+
+    canvas = event.data['canvas'];
+
+    selected_option = $('#select-match').find(':selected');
+    match_id = parseInt( selected_option.val() );
+
+    if ( !isNaN(match_id) ) {
+        dream.Simulator.get_board_for_match(match_id, canvas);
     }
 };
 
 $(document).ready(function() {
-    var canvas;
+    var canvas, context;
 
-    canvas = new dream.Canvas('soccer_field');
+    context = {};
+
+    canvas = new dream.Canvas('field-canvas');
     canvas.initialize();
 
+    context['canvas'] = canvas;
+
+    $('#btn-match-selected').click(context, dream.Simulator.handlers.select_match);
+
+/*
     $('#get_ticks').click(function() {
         var match_id;
 
@@ -221,6 +249,5 @@ $(document).ready(function() {
         if ( !isNaN( match_id ) ) {
             dream.Simulator.create_next_tick(match_id, canvas);
         }
-    });
-
+    });*/
 });

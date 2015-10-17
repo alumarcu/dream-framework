@@ -2,12 +2,22 @@
 {% load staticfiles %}
 {% load i18n %}
 
+{% block stylesheets %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin.css' %}">
+{% endblock %}
+
 {% block body %}
     {% block top_panel %}
     <nav class="top-bar" data-topbar role="navigation">
         <ul class="title-area">
             <li class="name">
-                <h1><a href="#">Dream11 Dev Utility</a></h1>
+                <h1>
+                    <a href="#">
+                        <img src="{% static 'img/admin-logo.png' %}" alt=""/>
+                        Dream11 Dev Utility
+                    </a>
+                </h1>
             </li>
         </ul>
 

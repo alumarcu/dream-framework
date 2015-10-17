@@ -6,3 +6,10 @@ Foundation overrides
     max-width: 100%;
 }
 
+/*
+Global helper styles
+*/
+.max-wide100 { max-width: 100px; }
+.max-wide200 { max-width: 200px; }
+.max-wide400 { max-width: 400px; }
+.full-width { width: 100%; }
