@@ -33,5 +33,14 @@ Global helper styles
     background-color: #F2F2F2;
     padding: 0.6rem;
     width: 100%;
-    margin: 0 0 10px 0;
+    margin: 10px 0 20px 0;
+}
+
+.snippet {
+    color: #FFFFFF;
+    background-color: #333333;
+    min-height: 300px;
+    height: 300px;
+    padding: 10px;
+    font-size: 8pt;
 }

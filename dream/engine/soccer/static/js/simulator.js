@@ -15,29 +15,23 @@ dream.Canvas.initd = false;
 dream.Canvas.prototype.initialize = function() {
     var location, params;
 
-    location = window.location.href;
-    params = {setup: 1};
-
-        $.ajax({
-            url: location + '?' + $.param(params),
-            method: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                // do stuff with the data
-                dream.Canvas.settings = data.setup;
-                // TODO -> unlock screen for extra actions
-                dream.Canvas.initd = true;
-                console.log("OK - canvas initialized");
-            }
-        });
+    $.ajax({
+        url: dream.Context['simulator-api'],
+        method: 'POST',
+        data: {'setup': true},
+        dataType: 'json',
+        success: function(data) {
+            dream.Canvas.settings = data['setup-data'];
+            dream.Canvas.initd = true;
+            console.log("OK - canvas initialized");
+        },
+        beforeSend: dream.utils.setCsrfToken()
+    });
 };
 
-dream.Canvas.prototype.load_board = function(data) {
+dream.Canvas.prototype.load_board = function(board_state) {
     console.log("Loading Board");
-    console.log(dream.Canvas.initd);
     if (dream.Canvas.initd) {
-        var board_state;
-        board_state = $.parseJSON(data['board_state']);
         this.draw_board(board_state);
     }
 };
@@ -110,80 +104,71 @@ dream.Canvas.prototype.draw_board = function(board_data) {
     this.context.arc(ball_coordinates[0] * unit_of_length, ball_coordinates[1] * unit_of_width, 4, 0, 2 * Math.PI);
     //this.context.stroke();
     this.context.fill();
-
-
-
 };
 
 dream.Simulator = function() {
     //initialize simulator
 };
 
-dream.Simulator.get_ticks_for_match = function(match_id) {
-    var location, params;
+dream.Simulator.load_ticks = function(ticks_list) {
+    console.log(ticks_list);
 
-    location = window.location.href;
-    params = {id: match_id, ticks: 1};
+    var htmlHead, table = $('#game-ticks');
+    // TODO: Can be done in a slightly better way; but MUST BE DONE WITHOUT any jQuery plugins
+    table.empty();
 
-    $.ajax({
-        url: location + '?' + $.param(params),
-        method: 'GET',
-        dataType: 'json',
-        success: function(response) {
-            // do stuff with the data
-            if (typeof(response['data']) == 'object' && $.isArray(response['data'])) {
-                var htmlHead, table = $('#ticks');
-                // TODO: Can be done in a slightly better way; but MUST BE DONE WITHOUT any jQuery plugins
-                table.empty();
-
-                htmlHead = '<tr>' +
-                    '<th>ID</th>'+
-                    '<th>Match tick id</th>' +
-                    '<th>Match minute</th>' +
-                    '<th>Last modified</th>' +
-                    '<th>Journal</th>' +
-                    '</tr>';
-                table.append(htmlHead);
-                $.each(response['data'], function(idx, row) {
-                    var html = '<tr>' +
-                        '<td>' + row['tick_id'] + '</td>' +
-                        '<td>' + row['sim_last_tick_id'] + '</td>' +
-                        '<td>' + row['sim_minutes_passed'] + '</td>' +
-                        '<td>' + row['last_modified'] + '</td>' +
-                        '<td>' + row['journal'] + '</td>' +
-                        '</tr>';
-                    table.append(html);
-                })
-            }
-        }
+    htmlHead = '<tr>' +
+        '<th>ID</th>'+
+        '<th>Match tick id</th>' +
+        '<th>Match minute</th>' +
+        '<th>Last modified</th>' +
+        '<th>Journal</th>' +
+        '</tr>';
+    table.append(htmlHead);
+    $.each(ticks_list, function(idx, row) {
+        var html = '<tr>' +
+            '<td>' + row['tick_id'] + '</td>' +
+            '<td>' + row['sim_last_tick_id'] + '</td>' +
+            '<td>' + row['sim_minutes_passed'] + '</td>' +
+            '<td>' + row['last_modified'] + '</td>' +
+            '<td>' + row['journal'] + '</td>' +
+            '</tr>';
+        table.append(html);
     });
 };
 
-dream.Simulator.get_board_for_match = function(match_id, canvas) {
+dream.Simulator.load_match = function(match_id, canvas) {
     var location, params;
 
     location = window.location.href;
-    params = {id: match_id, board: 1};
-console.log(location + '?' + $.param(params))
+    params = {
+        'match-id': match_id,
+        'get-board': true,
+        'get-ticks': -1
+    };
+
     $.ajax({
-        url: location + '?' + $.param(params),
-        method: 'GET',
+        url: dream.Context['simulator-api'],
+        method: 'POST',
+        data: params,
         dataType: 'json',
         success: function(data) {
-            // do stuff with the data
-            canvas.load_board(data);
-        }
+            canvas.load_board($.parseJSON(data['board-state']));
+            dream.Simulator.load_ticks(data['ticks-list']);
+        },
+        beforeSend: dream.utils.setCsrfToken()
     });
 };
 
+/*
 dream.Simulator.create_next_tick = function(match_id, canvas) {
     var location, params;
 
     location = window.location.href;
-    params = {id: match_id, next_tick: 1};
+    params = {id: match_id, next_tick: 1 };
 
     $.ajax({
-        url: location + '?' + $.param(params),
+        url: '/soccer/dev/simulator/api/?' + $.param(params),
         method: 'GET',
         dataType: 'json',
         success: function(data) {
@@ -192,6 +177,7 @@ dream.Simulator.create_next_tick = function(match_id, canvas) {
         }
     });
 };
+*/
 
 dream.Simulator.handlers = {};
 
@@ -204,7 +190,7 @@ dream.Simulator.handlers.select_match = function(event) {
     match_id = parseInt( selected_option.val() );
 
     if ( !isNaN(match_id) ) {
-        dream.Simulator.get_board_for_match(match_id, canvas);
+        dream.Simulator.load_match(match_id, canvas);
     }
 };
 
@@ -237,7 +223,7 @@ $(document).ready(function() {
         match_id = parseInt( $('#match_id').val() );
 
         if ( !isNaN( match_id ) ) {
-            dream.Simulator.get_board_for_match(match_id, canvas);
+            dream.Simulator.load_match(match_id, canvas);
         }
     });
 

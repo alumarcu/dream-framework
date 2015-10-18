@@ -1,1 +1,1 @@
-from .dev import SimulatorView
+from .simulator import SimulatorView

@@ -6,40 +6,36 @@
 {% trans 'DDU: Simulator' %}
 {% endblock %}
 
-{# request.path #}
-
 {% block stylesheets %}
     {{ block.super }}
     <link rel="stylesheet" type="text/css" href="{% static 'css/simulator.css' %}">
 {% endblock %}
 
 {% block content %}
-&nbsp;
 <div class="row fluid">
+    {# === Left Content === #}
     <div class="small-12 large-8 columns">
-        <div class="row fluid">
-            {# Load game #}
-            <div class="small-12 large-12 columns">
-                <div class="spotlight">
-                    <select name="select-match" id="select-match" class="no-margins max-wide400">
-                        <option value="" disabled selected>{% trans 'Pick game' %}</option>
-                        {% for id, match in matches.items %}
-                        <option value="{{ id }}">#{{ id }}: {{ match.home }} - {{ match.away }}</option>
-                        {% endfor %}
-                    </select>
-                    <button name="btn-match-selected" id="btn-match-selected" class="no-margins form-button">{% trans 'Load game' %}</button>
-                </div>
-            </div>
+        {# Load game #}
+        <div class="panel spotlight">
+            <select name="select-match" id="select-match" class="no-margins max-wide400">
+                <option value="" disabled selected>{% trans 'Pick game' %}</option>
+                {% for id, match in matches.items %}
+                <option value="{{ id }}">#{{ id }}: {{ match.home }} - {{ match.away }}</option>
+                {% endfor %}
+            </select>
+            <button name="btn-match-selected" id="btn-match-selected" class="no-margins form-button">{% trans 'Load game' %}</button>
         </div>
 
-        <!-- <button id="get_ticks">Get Ticks</button>
-        <button id="next_tick">Next Tick + Get Board</button> -->
-        <!-- <button id="next_tick">Clear Ticks</button> -->
+        <h3>Logs</h3>
+        <pre id="logs-area" class="snippet">No logs available yet.</pre>
+
         <br/>
-        <table id="ticks"></table>
-
+        <h3>Ticks</h3>
+        <div id="game-ticks">
+            No ticks to show.
+        </div>
     </div>
-
+    {# === Right Content === #}
     <div class="small-12 large-4 columns">
         <div class="row">
             <div class="small-12 columns">
@@ -112,6 +108,13 @@
 
 {% block javascripts %}
     {{ block.super }}
+    <script type="text/javascript">
+    var dream = dream || {};
+    dream.Context = {
+        'simulator-api': '{% url 'dev-simulator-api' %}'
+    }
+
+    </script>
     <script type="text/javascript" src="{% static 'js/base.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/simulator.js' %}"></script>

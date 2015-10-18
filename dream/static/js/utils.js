@@ -30,5 +30,13 @@ dream.utils = {
     csrfSafeMethod: function(method) {
         // these HTTP methods do not require CSRF protection
         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    },
+    /**
+     * Callback for ajax beforeSend that sets the header with CSRF token
+     */
+    setCsrfToken: function() {
+        return function(xhr) {
+            xhr.setRequestHeader('X-CSRFToken', dream.utils.getCookie('csrftoken'));
+        }
     }
 };
