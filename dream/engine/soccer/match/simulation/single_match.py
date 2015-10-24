@@ -41,6 +41,7 @@ class SingleMatch(BaseSimulation):
         self.board = self.load_board()
 
         # TODO: [SIM-04] Advanced match status-related logic
+        # this will be initialized later
         self.match.status = self.match.STATUS_SIM_STARTED
         self.match.save()
 
@@ -116,7 +117,7 @@ class SingleMatch(BaseSimulation):
         return field_players
 
     def loop(self):
-        game_rules = engine_params(section='rules')
+        # game_rules = engine_params(section='rules')
         in_progress = True
 
         # TODO: [SIM-04] Advanced match status-related logic
