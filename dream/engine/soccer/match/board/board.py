@@ -51,8 +51,11 @@ class Board:
 
         return data
 
-    def from_dict(self, data, simulation):
+    def from_dict(self, data, tactics):
         from dream.engine.soccer.match.actors import FieldTeam
+        from dream.engine.soccer.service.simulation import SimulationService
+
+        sim_service = SimulationService()
         self.rows = data['rows']
         self.cols = data['cols']
 
@@ -62,7 +65,7 @@ class Board:
 
         for team_key in data['teams']:
             team = FieldTeam(team_key)
-            team.field_players = simulation.create_field_players(team)
+            team.field_players = sim_service.create_field_players(team, tactics)
             team.from_dict(data['teams'][team_key])
             self.teams[team_key] = team
 
@@ -72,16 +75,14 @@ class Board:
                 fp.team = team
                 fp_cache[fp.id()] = fp
 
-        self.grid = Grid()
-        self.grid.from_dict(data['grid'], fp_cache, simulation)
+        self.grid = Grid().from_dict(data['grid'], fp_cache)
 
         return self
 
     @staticmethod
-    def load_state(data, simulation):
+    def load_state(data, tactics):
         board = Board()
-        board.from_dict(data, simulation)
-        return board
+        return board.from_dict(data, tactics)
 
     def team_keys(self):
         return [key for key in self.teams.keys()]

@@ -11,11 +11,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from dream.engine.soccer.match.simulation import ManualMatch
         try:
-
             mm = ManualMatch(options['match_id'])
             mm.initialize()
+            mm.begin_simulation()
 
-        except IndexError as ie:
+        except IndexError:
             traceback.print_exc()
             raise CommandError('Please supply a valid match id')
         except Exception as e:

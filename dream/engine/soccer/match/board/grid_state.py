@@ -58,9 +58,9 @@ class GridState:
 
         return data
 
-    def from_dict(self, data, fp_cache, simulation):
+    def from_dict(self, data, fp_cache):
         self.tick_id = data['tick_id']
         self.game_minute = data['game_minute']
         self.player_with_ball = fp_cache[data['player_with_ball']]
         self.action_status(data['action_status'])
-        self.ticks_per_minute = simulation.log.sim_ticks_per_minute
+        self.ticks_per_minute = engine_params(key='match_ticks_per_minute').value

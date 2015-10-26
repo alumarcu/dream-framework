@@ -19,7 +19,8 @@ class ManualMatch:
         self.board = None
         self.info = {
             'journal': None,
-            'last_state': None
+            'last_state': None,
+            'selected_state': None      # Current state displayed by the simulator
         }
 
     def initialize(self, up_to_tick=None):
@@ -40,11 +41,13 @@ class ManualMatch:
 
         self.tactics = self.sim_service.fetch_tactics(self.match)
         if self.info['last_state'] is None:
+            self.logger.log('CREATE NEW BOARD')
             self.board = self.sim_service.create_board()
             self.sim_service.place_teams_on_board(self.board, self.tactics)
         else:
+            self.logger.log('LOAD EXISTING BOARD')
             board_state = self.info['last_state']['board']
-            self.board = Board.load_state(board_state, self)
+            self.board = Board.load_state(board_state, self.tactics)
 
         if self.match.status < Match.STATUS_SIM_STARTED:
             self.match.status = Match.STATUS_SIM_STARTED
@@ -79,7 +82,7 @@ class ManualMatch:
             self.match.status = Match.STATUS_SIM_IN_PROGRESS
             self.match.save()
 
-        gs = self.board.grid_sate()
+        gs = self.board.grid_state()
         teams = self.board.teams
         for team in teams.values():
             team.initialize(gs)

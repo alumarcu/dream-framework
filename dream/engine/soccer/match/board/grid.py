@@ -80,13 +80,13 @@ class Grid:
 
         return data
 
-    def from_dict(self, data, fp_cache, simulation):
+    def from_dict(self, data, fp_cache):
         self.initialize()
 
         self.width = data['width']
         self.length = data['length']
 
-        self.state.from_dict(data['state'], fp_cache, simulation)
+        self.state.from_dict(data['state'], fp_cache)
 
         for celldata in data['matrix']:
             cell = self.get_cell(celldata['xy'])
