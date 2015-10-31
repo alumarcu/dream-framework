@@ -10,7 +10,7 @@ from .team import Team
 from .npc import Npc
 
 from .match import Match
-from .matchlog import MatchLog
+from .match_log import MatchLog
 
 from .attribute import Attribute
 

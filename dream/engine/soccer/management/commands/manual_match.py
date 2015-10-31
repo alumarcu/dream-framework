@@ -12,7 +12,7 @@ class Command(BaseCommand):
         from dream.engine.soccer.match.simulation import ManualMatch
         try:
             mm = ManualMatch(options['match_id'])
-            mm.initialize()
+            mm.initialize(tick_id=-1)
             mm.begin_simulation()
 
         except IndexError:

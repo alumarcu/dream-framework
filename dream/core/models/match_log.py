@@ -19,3 +19,6 @@ class MatchLog(Model):
 
     # A JSON with data required to render the game after simulation
     journal = TextField(blank=True)
+
+    def __str__(self):
+        return 'Log [match_id:{}, tick_id:{}]'.format(self.match.pk, self.sim_last_tick_id)
