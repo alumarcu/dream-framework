@@ -14,6 +14,7 @@ class Command(BaseCommand):
             mm = ManualMatch(options['match_id'])
             mm.initialize(tick_id=-1)
             mm.begin_simulation()
+            mm.previous_tick()
 
         except IndexError:
             traceback.print_exc()

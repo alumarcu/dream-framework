@@ -6,6 +6,9 @@ from . import Match
 
 
 class MatchLog(Model):
+    # TODO: MatchLog refactoring, keep journal in separate table match_journal
+    # TODO: columns last_saved_state, sim_last_tick_id renamed to saved_state, tick_id
+
     match = ForeignKey(Match)
 
     sim_minutes_passed = SmallIntegerField(_('simulation minutes passed'), default=0)

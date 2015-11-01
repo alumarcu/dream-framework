@@ -1,11 +1,17 @@
 from json import loads as json_decode, dumps as json_encode
-from dream.engine.soccer.exceptions import SimulationError
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import ugettext_lazy as _
+
+from dream.engine.soccer.exceptions import InitError, SimulationError
 from dream.engine.soccer.match.board import Board
 from dream.engine.soccer.tools import engine_params
-from dream.tools.tools import toss_coin
+from dream.tools import Logger, toss_coin
 
 
 class SimulationService:
+    def __init__(self):
+        self.logger = Logger(__name__, Logger.default_message)
+
     def fetch_tactics(self, match):
         from dream.core.models import MatchTeam
         match_teams = MatchTeam.objects.filter(match=match)
@@ -27,9 +33,23 @@ class SimulationService:
     def validate_tactics(self, decoded_tactics):
         return True
 
-    def create_board(self):
+    def resume_board(self, match, tick_id, tactics):
+        self.logger.log('LOAD EXISTING BOARD AT TICK %s' % tick_id)
+
+        match_log = self.go_to_tick(match, tick_id)
+
+        last_state = json_decode(match_log.last_saved_state)
+        board = Board.load_state(last_state['board'], tactics)
+
+        return board, match_log, last_state
+
+    def create_board(self, tactics):
+        self.logger.log('CREATE NEW BOARD')
+
         board = Board()
         board.initialize()
+        self.place_teams_on_board(board, tactics)
+
         return board
 
     def place_teams_on_board(self, board, tactics):
@@ -91,3 +111,23 @@ class SimulationService:
         from random import shuffle
         shuffle(players_list)
         return players_list
+
+    def go_to_tick(self, match, tick_id):
+        from dream.core.models import MatchLog
+
+        filters = {'match': match}
+
+        try:
+            if tick_id != -1:
+                filters['sim_last_tick_id'] = tick_id
+                match_log = MatchLog.objects.get(**filters)
+            else:
+                match_log = MatchLog.objects\
+                    .filter(**filters)\
+                    .latest('sim_last_tick_id')
+
+        except ObjectDoesNotExist:
+            raise InitError(_('Tick with id: {} does not exist for match_id: {}'
+                            .format(tick_id, match.pk)))
+
+        return match_log
