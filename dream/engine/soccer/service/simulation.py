@@ -38,7 +38,7 @@ class SimulationService:
 
         match_log = self.go_to_tick(match, tick_id)
 
-        last_state = json_decode(match_log.last_saved_state)
+        last_state = json_decode(match_log.state)
         board = Board.load_state(last_state['board'], tactics)
 
         return board, match_log, last_state
@@ -93,10 +93,10 @@ class SimulationService:
         state_json = json_encode(state, separators=(',', ':'))
 
         log = MatchLog(match=match)
-        log.sim_minutes_passed = board.grid_state().game_minute
-        log.sim_last_tick_id = board.grid_state().tick_id
-        log.sim_ticks_per_minute = engine_params(key='match_ticks_per_minute').value
-        log.last_saved_state = state_json
+        log.minute = board.grid_state().game_minute
+        log.tick = board.grid_state().tick_id
+        log.ticks_per_min = engine_params(key='match_ticks_per_minute').value
+        log.state = state_json
         log.journal = journal
 
         return log
@@ -119,12 +119,12 @@ class SimulationService:
 
         try:
             if tick_id != -1:
-                filters['sim_last_tick_id'] = tick_id
+                filters['tick'] = tick_id
                 match_log = MatchLog.objects.get(**filters)
             else:
                 match_log = MatchLog.objects\
                     .filter(**filters)\
-                    .latest('sim_last_tick_id')
+                    .latest('tick')
 
         except ObjectDoesNotExist:
             raise InitError(_('Tick with id: {} does not exist for match_id: {}'

@@ -11,6 +11,7 @@ from .npc import Npc
 
 from .match import Match
 from .match_log import MatchLog
+from .match_journal import MatchJournal
 
 from .attribute import Attribute
 

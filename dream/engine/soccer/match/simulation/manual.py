@@ -39,22 +39,21 @@ class ManualMatch:
             .resume_board(self.match, tick_id, self.tactics)
 
         self.info['last_state'] = last_state
-        self.info['journal'] = json_decode(self.match_log.journal)
 
     def next_tick(self):
-        tick_id = self.match_log.sim_last_tick_id
+        tick_id = self.match_log.tick
         self.go_to_tick(tick_id + 1)
 
     def previous_tick(self):
-        tick_id = self.match_log.sim_last_tick_id
+        tick_id = self.match_log.tick
         self.go_to_tick(tick_id - 1)
 
     def create_tick(self):
-        # TODO: Refactor MatchLog before doing this, see suggestions on MatchLog class
         """
         Computes new tick after the last known tick
         :return:
         """
+        # Create the new tick id using a tick mechanics class
         pass
 
     def delete_ticks_from(self, tick_id):

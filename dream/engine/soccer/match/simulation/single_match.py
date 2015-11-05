@@ -21,7 +21,6 @@ class SingleMatch(BaseSimulation):
         self.board = None
         self.log = None
         self.saved_state = None
-        self.journal = {}    # Will record the match journal
 
     def initialize(self):
         self.match = self.init_match(self._match_ids[0])
@@ -29,13 +28,12 @@ class SingleMatch(BaseSimulation):
         # Get last match log entry for this match (if any)
         match_log = MatchLog.objects\
             .filter(match=self.match)\
-            .order_by('-sim_minutes_passed', '-sim_last_tick_id')\
+            .order_by('-minute', '-tick')\
             .first()
         if type(match_log) is MatchLog:
             self.log = match_log
             # TODO: Error handling on invalid JSON
-            self.journal = json_decode(match_log.journal)
-            self.saved_state = json_decode(match_log.last_saved_state)
+            self.saved_state = json_decode(match_log.state)
 
         self.tactics = self.init_tactics()
         self.board = self.load_board()
@@ -147,11 +145,10 @@ class SingleMatch(BaseSimulation):
         state_json = json_encode(state, separators=(',', ':'))
 
         new_log = MatchLog(match=self.match)
-        new_log.sim_minutes_passed = self.board.grid_state().game_minute
-        new_log.sim_last_tick_id = self.board.grid_state().tick_id
-        new_log.sim_ticks_per_minute = engine_params(key='match_ticks_per_minute').value
-        new_log.last_saved_state = state_json
-        new_log.journal = self.journal
+        new_log.minute = self.board.grid_state().game_minute
+        new_log.tick = self.board.grid_state().tick_id
+        new_log.ticks_per_min = engine_params(key='match_ticks_per_minute').value
+        new_log.state = state_json
 
         return new_log
 

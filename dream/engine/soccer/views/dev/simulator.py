@@ -76,7 +76,7 @@ class SimulatorView(View):
                 .objects\
                 .filter(
                     match__pk=match_id,
-                    sim_last_tick_id__lte=requested_ticks
+                    tick__lte=requested_ticks
                 )
 
         if len(match_log_rows) > 0:
@@ -84,10 +84,9 @@ class SimulatorView(View):
             for log in match_log_rows:
                 new_log = {
                     'tick_id': log.pk,
-                    'sim_minutes_passed': log.sim_minutes_passed,
-                    'sim_last_tick_id': log.sim_last_tick_id,
-                    'last_modified': log.last_modified,
-                    'journal': log.journal
+                    'minute': log.minute,
+                    'tick': log.tick,
+                    'modified': log.modified
                 }
                 match_logs.append(new_log)
             response['ticks-list'] = match_logs

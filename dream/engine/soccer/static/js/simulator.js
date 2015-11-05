@@ -128,10 +128,10 @@ dream.Simulator.load_ticks = function(ticks_list) {
     $.each(ticks_list, function(idx, row) {
         var html = '<tr>' +
             '<td>' + row['tick_id'] + '</td>' +
-            '<td>' + row['sim_last_tick_id'] + '</td>' +
-            '<td>' + row['sim_minutes_passed'] + '</td>' +
-            '<td>' + row['last_modified'] + '</td>' +
-            '<td>' + row['journal'] + '</td>' +
+            '<td>' + row['tick'] + '</td>' +
+            '<td>' + row['minute'] + '</td>' +
+            '<td>' + row['modified'] + '</td>' +
+            '<td>' + 'modified' + '</td>' +
             '</tr>';
         table.append(html);
     });
