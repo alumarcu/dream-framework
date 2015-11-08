@@ -1,11 +1,26 @@
-class Tick:
+from django.utils.translation import ugettext_lazy as _
+from dream.engine.soccer.exceptions import SimulationError
+
+
+class Ticker:
+    def __init__(self):
+        self.board = None
+
     def perform(self):
-        pass
+        if self.board is None:
+            raise SimulationError(_('Board not initialized in the ticker!'))
+
+        move_queue = self.create_move_queue()
+
+        for player in move_queue:
+            self.animate_player(player)
 
     def create_move_queue(self):
         # Returns a list of 22 players and the
         # order in which they should be moved
-        pass
+
+        # We know who is (gs.player_with_ball)
+        return []
 
     def animate_player(self, player):
         # Moves a FieldPlayer
