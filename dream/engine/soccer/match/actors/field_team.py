@@ -83,3 +83,6 @@ class FieldTeam:
 
     def debug_getplayercoords(self):
         return [player.current_position for player in self.field_players]
+
+    def __str__(self):
+        return '<FieldTeam: "%s">' % self._team_key

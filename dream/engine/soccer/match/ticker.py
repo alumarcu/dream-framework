@@ -1,14 +1,20 @@
 from django.utils.translation import ugettext_lazy as _
 from dream.engine.soccer.exceptions import SimulationError
+from dream.engine.soccer.match.board import Board
 
 
 class Ticker:
-    def __init__(self):
-        self.board = None
+    def __init__(self, board):
+        self.board = board
 
     def perform(self):
-        if self.board is None:
+        if type(self.board) is not Board:
             raise SimulationError(_('Board not initialized in the ticker!'))
+
+        gs = self.board.grid_state()
+        tick = gs.tick(new_tick=True)
+
+        time = (gs.game_minute, tick)
 
         move_queue = self.create_move_queue()
 
@@ -18,9 +24,26 @@ class Ticker:
     def create_move_queue(self):
         # Returns a list of 22 players and the
         # order in which they should be moved
+        players_list = []
+        for field_team in self.board.teams.values():
+            players_list += field_team.field_players
+
+        move_queue = []
+        gs = self.board.grid_state()
+        move_queue.append(gs.player_with_ball)
+        players_list.remove(gs.player_with_ball)
+
+        # TODO: This should be calculated better based on player skills and match state
+        # such as initiative, distance to ball, team, etc.
+        import random
+        while len(players_list) > 0:
+            # for player in players_list:
+            player = random.choice(players_list)
+            players_list.remove(player)
+            move_queue.append(player)
 
         # We know who is (gs.player_with_ball)
-        return []
+        return move_queue
 
     def animate_player(self, player):
         # Moves a FieldPlayer

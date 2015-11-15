@@ -16,7 +16,7 @@ class ManualMatch:
         self.match_log = None
         self.tactics = None
         self.board = None
-        self.ticker = Ticker()
+        self.ticker = None
         self.info = {
             'journal': None,
             'last_state': None
@@ -30,7 +30,7 @@ class ManualMatch:
 
         else:
             self.board = self.sim_service.create_board(self.tactics)
-            self.ticker.board = self.board
+            self.ticker = Ticker(self.board)
 
             self.match.status = Match.STATUS_SIM_STARTED
             self.match.save()
@@ -39,7 +39,7 @@ class ManualMatch:
         self.board, self.match_log, last_state = self.sim_service\
             .resume_board(self.match, tick_id, self.tactics)
 
-        self.ticker.board = self.board
+        self.ticker = Ticker(self.board)
         self.info['last_state'] = last_state
 
     def next_tick(self):
@@ -56,10 +56,6 @@ class ManualMatch:
         :return:
         """
         # Create the new tick id using a tick mechanics class
-        gs = self.board.grid_state()
-        tick = gs.tick(new_tick=True)
-
-        time = (gs.game_minute, tick)
         self.ticker.perform()
 
     def delete_ticks_from(self, tick_id):
