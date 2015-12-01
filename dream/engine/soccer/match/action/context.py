@@ -58,6 +58,7 @@ class ActionContext:
             value_ids = json_decode(ar.value)
             # Getting the actual values from IDs
             enum_values = ar.requirement.enum_values(value_ids)
+
             required_values = [ev.value for ev in enum_values]
 
         req_key = ar.requirement.name

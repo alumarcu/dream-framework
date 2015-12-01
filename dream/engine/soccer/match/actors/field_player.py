@@ -97,7 +97,7 @@ class FieldPlayer:
 
     def __str__(self):
         from dream.core.models import Npc
-        if type(self.npc) == Npc:
+        if type(self.npc) is Npc:
             return ("%s [%s]" % (self.npc, self.team.key())).upper()
         else:
             raise InitError(_('Uninitialized player'))

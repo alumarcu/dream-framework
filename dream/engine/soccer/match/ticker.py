@@ -19,7 +19,7 @@ class Ticker:
         move_queue = self.create_move_queue()
 
         for player in move_queue:
-            self.animate_player(player)
+            self.animate_player(player, time)
 
     def create_move_queue(self):
         # Returns a list of 22 players and the
@@ -45,9 +45,14 @@ class Ticker:
         # We know who is (gs.player_with_ball)
         return move_queue
 
-    def animate_player(self, player):
+    def animate_player(self, player, time):
+        gs = self.board.grid_state()
+        logger = self.board.logger
+
+        logger.log('%s has the next action.' % player, simtime=time)
         # Moves a FieldPlayer
-        pass
+        possible_actions = player.get_possible_actions()
+        logger.log('Possible actions are: %s' % possible_actions, simtime=time)
 
     """
     === 1) Get players order of movement based on a base logic

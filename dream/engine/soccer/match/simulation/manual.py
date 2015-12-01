@@ -57,6 +57,7 @@ class ManualMatch:
         """
         # Create the new tick id using a tick mechanics class
         self.ticker.perform()
+        # TODO: Save new state
 
     def delete_ticks_from(self, tick_id):
         """

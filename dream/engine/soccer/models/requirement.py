@@ -32,7 +32,6 @@ class Requirement(Model):
 
     def enum_values(self, ids=None):
         from .requirement_enum_value import RequirementEnumValue
-
         if type(ids) in [list, int]:
             # Return values of certain IDs (or of a single ID)
             if type(ids) is int:
@@ -41,6 +40,7 @@ class Requirement(Model):
             if len(ids) != len(enum_values):
                 raise LoopError(
                     _('Enum values missing for requirement: %s' % self.name))
+            return enum_values
 
         # Return all values for this requirement
         return RequirementEnumValue.objects.filter(requirement=self)
