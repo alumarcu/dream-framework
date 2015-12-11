@@ -1,4 +1,4 @@
-from json import loads as json_decode
+from json import dumps as json_encode
 from dream.tools import Logger
 from dream.engine.soccer.service import SimulationService
 from dream.engine.soccer.match import Ticker
@@ -57,7 +57,22 @@ class ManualMatch:
         """
         # Create the new tick id using a tick mechanics class
         self.ticker.perform()
-        # TODO: Save new state
+
+        # Save new state
+        from dream.core.models.match_log import MatchLog
+        gs = self.board.grid_state()
+        state = {'board': self.board.as_dict()}
+
+        ml = MatchLog(match=self.match)
+        ml.minute = gs.game_minute
+        ml.tick = gs.tick_id
+        ml.state = json_encode(state, separators=(',', ':'))
+        # TODO: Move this somewhere where data from the start of match is stored
+        # ticks_per_min should always remain the same as at start of match
+        from dream.engine.soccer.tools import engine_params
+        ml.ticks_per_min = engine_params(key='match_ticks_per_minute').value
+        # Save the new match log
+        ml.save()
 
     def delete_ticks_from(self, tick_id):
         """
