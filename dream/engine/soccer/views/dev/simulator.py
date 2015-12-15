@@ -1,6 +1,6 @@
 from django.views.generic import View
 from django.shortcuts import render
-from dream.engine.soccer.match.simulation import DebugMatch
+from dream.engine.soccer.match.simulation import ManualMatch
 from django.http import JsonResponse
 from json import dumps as json_encode
 from dream.core.models import MatchLog
@@ -96,25 +96,24 @@ class SimulatorView(View):
     def get_board(self, query, match_id):
         response = {}
 
-        sim = DebugMatch()
-        sim.add_match(match_id)
-        sim.initialize()
+        mm = ManualMatch(match_id)
+        mm.initialize(tick_id=-1)
 
-        response['board-state'] = json_encode(sim.debug_data())
+        response['board-state'] = json_encode(mm.match_info())
         return response
 
     def new_tick(self, query, match_id):
         response = {}
 
-        sim = DebugMatch()
-        sim.add_match(match_id)
-        sim.initialize()
+        mm = ManualMatch(match_id)
+        mm.initialize(tick_id=-1)
+        mm.begin_simulation()
+        mm.create_tick()
         # TODO: Move shared functionality somewhere else;
         # a simulation method should do specifically what is requested -
         # create a new tick but not start a loop (called in loop though)
-        sim.loop()
 
-        response['board_state'] = json_encode(sim.debug_data())
+        response['board_state'] = json_encode(mm.match_info())
         return response
 
     def delete_ticks(self, query, match_id):

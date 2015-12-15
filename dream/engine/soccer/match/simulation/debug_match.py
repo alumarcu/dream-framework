@@ -8,7 +8,7 @@ class DebugMatch(SingleMatch):
 
         for team_key in self.board.team_keys():
             team = self.board.teams[team_key]
-            coords += team.debug_getplayercoords()
+            coords += team.match_info_get_player_coordinates()
 
         ball_position = self.board.grid_state().player_with_ball.current_position
 

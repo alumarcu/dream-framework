@@ -81,7 +81,7 @@ class FieldTeam:
     def players(self):
         return self.field_players
 
-    def debug_getplayercoords(self):
+    def match_info_get_player_coordinates(self):
         return [player.current_position for player in self.field_players]
 
     def __str__(self):

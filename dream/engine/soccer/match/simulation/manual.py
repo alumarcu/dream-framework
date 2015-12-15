@@ -93,3 +93,18 @@ class ManualMatch:
             team.initialize(gs)
 
         self.logger.log('SIM STARTED')
+
+    def match_info(self):
+        coordinates = []
+        for team_key in self.board.team_keys():
+            team = self.board.teams[team_key]
+            coordinates += team.match_info_get_player_coordinates()
+
+        ball_position = self.board.grid_state().player_with_ball.current_position
+
+        data = {
+            'player_coordinates': coordinates,
+            'ball_coordinates': ball_position
+        }
+
+        return data
