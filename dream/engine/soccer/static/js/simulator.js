@@ -155,29 +155,26 @@ dream.Simulator.load_match = function(match_id, canvas) {
         success: function(data) {
             canvas.load_board($.parseJSON(data['board-state']));
             dream.Simulator.load_ticks(data['ticks-list']);
+            dream.Simulator.set_loaded_match_id(match_id);
         },
         beforeSend: dream.utils.setCsrfToken()
     });
 };
 
-/*
-dream.Simulator.create_next_tick = function(match_id, canvas) {
-    var location, params;
 
-    location = window.location.href;
-    params = {id: match_id, next_tick: 1 };
+dream.Simulator.get_loaded_match_id = function() {
+    var match_id = parseInt( $('#field-canvas-match-id').val() );
 
-    $.ajax({
-        url: '/soccer/dev/simulator/api/?' + $.param(params),
-        method: 'GET',
-        dataType: 'json',
-        success: function(data) {
-            // do stuff with the data
-            canvas.load_board(data);
-        }
-    });
+    if ( !isNaN(match_id) ) {
+        return match_id;
+    }
+
+    return false;
 };
-*/
+
+dream.Simulator.set_loaded_match_id = function(match_id) {
+    $('#field-canvas-match-id').val(match_id);
+};
 
 dream.Simulator.handlers = {};
 
@@ -194,6 +191,37 @@ dream.Simulator.handlers.select_match = function(event) {
     }
 };
 
+dream.Simulator.handlers.sim_new_tick = function(event) {
+    var canvas = event.data['canvas'],
+        match_id = dream.Simulator.get_loaded_match_id();
+
+    if (false === match_id) {
+        //No match selected
+        alert('No match selected');
+    }
+
+    console.log('Create new tick for' + match_id);
+
+    /* TODO <-- Aici am ramas [29.12.2015] Implementat AJAX call pentru actiunea asta
+    dream.Simulator.create_next_tick = function(match_id, canvas) {
+        var location, params;
+
+        location = window.location.href;
+        params = {id: match_id, next_tick: 1 };
+
+        $.ajax({
+            url: '/soccer/dev/simulator/api/?' + $.param(params),
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                // do stuff with the data
+                canvas.load_board(data);
+            }
+        });
+    };
+    */
+};
+
 $(document).ready(function() {
     var canvas, context;
 
@@ -205,6 +233,7 @@ $(document).ready(function() {
     context['canvas'] = canvas;
 
     $('#btn-match-selected').click(context, dream.Simulator.handlers.select_match);
+    $('#btn-sim-new-tick').click(context, dream.Simulator.handlers.sim_new_tick);
 
 /*
     $('#get_ticks').click(function() {

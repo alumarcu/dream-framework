@@ -53,7 +53,7 @@
                         </a>
                     </li>
                     <li>
-                        <a class="item" href="javascript:void(0)">
+                        <a name="btn-sim-new-tick" id="btn-sim-new-tick" class="item" href="javascript:void(0)">
                             <img src="{% static 'img/ticks-new.png' %}" alt="New"/>
                             <label>New</label>
                         </a>
@@ -100,6 +100,7 @@
                 {# Match canvas #}
                 <!-- Nice canvas tutorial: http://diveintohtml5.info/canvas.html -->
                 <canvas id="field-canvas" width="420" height="660"></canvas>
+                <input type="hidden" id="field-canvas-match-id"/>
             </div>
         </div>
     </div>
