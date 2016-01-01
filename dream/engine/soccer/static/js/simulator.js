@@ -1,7 +1,13 @@
 "use strict";
-
 var dream = dream || {};
 
+// ############################################################################
+// ############################################################################
+/**
+ * Canvas class
+ * @param elementId
+ * @constructor
+ */
 dream.Canvas = function(elementId) {
     // Perform GET call to fetch board settings
     this.canvas = document.getElementById(elementId); // TODO: Throw error if nothing is found
@@ -12,9 +18,10 @@ dream.Canvas = function(elementId) {
 dream.Canvas.settings = {};
 dream.Canvas.initd = false;
 
+/**
+ * Get server side setup data to initialize the canvas
+ */
 dream.Canvas.prototype.initialize = function() {
-    var location, params;
-
     $.ajax({
         url: dream.Context['simulator-api'],
         method: 'POST',
@@ -29,6 +36,10 @@ dream.Canvas.prototype.initialize = function() {
     });
 };
 
+/**
+ * Calls the method to draw the board using board state data
+ * @param board_state
+ */
 dream.Canvas.prototype.load_board = function(board_state) {
     console.log("Loading Board");
     if (dream.Canvas.initd) {
@@ -36,6 +47,10 @@ dream.Canvas.prototype.load_board = function(board_state) {
     }
 };
 
+/**
+ * Draws the board
+ * @param board_data
+ */
 dream.Canvas.prototype.draw_board = function(board_data) {
     var grid_width, grid_length,
         canvas_width, canvas_length,
@@ -106,13 +121,17 @@ dream.Canvas.prototype.draw_board = function(board_data) {
     this.context.fill();
 };
 
+// ############################################################################
+// ############################################################################
 dream.Simulator = function() {
-    //initialize simulator
+    // Initialize simulator
 };
 
+/**
+ * Renders the list of ticks into the user interface
+ * @param ticks_list
+ */
 dream.Simulator.load_ticks = function(ticks_list) {
-    console.log(ticks_list);
-
     var htmlHead, table = $('#game-ticks');
     // TODO: Can be done in a slightly better way; but MUST BE DONE WITHOUT any jQuery plugins
     table.empty();
@@ -137,11 +156,13 @@ dream.Simulator.load_ticks = function(ticks_list) {
     });
 };
 
+/**
+ * Loads the match with a given id and renders it on the interface
+ * @param match_id
+ * @param canvas
+ */
 dream.Simulator.load_match = function(match_id, canvas) {
-    var location, params;
-
-    location = window.location.href;
-    params = {
+    var params = {
         'match-id': match_id,
         'get-board': true,
         'get-ticks': -1
@@ -161,7 +182,31 @@ dream.Simulator.load_match = function(match_id, canvas) {
     });
 };
 
+dream.Simulator.new_tick = function(match_id, canvas) {
+        var params = {
+        'match-id': match_id,
+        'get-board': true,
+        'get-ticks': -1,
+        'new-tick': true
+    };
 
+    $.ajax({
+        url: dream.Context['simulator-api'],
+        method: 'POST',
+        data: params,
+        dataType: 'json',
+        success: function(data) {
+            canvas.load_board($.parseJSON(data['board-state']));
+            dream.Simulator.load_ticks(data['ticks-list']);
+        },
+        beforeSend: dream.utils.setCsrfToken()
+    });
+};
+
+/**
+ * The currently loaded match id
+ * @returns {*}
+ */
 dream.Simulator.get_loaded_match_id = function() {
     var match_id = parseInt( $('#field-canvas-match-id').val() );
 
@@ -172,13 +217,23 @@ dream.Simulator.get_loaded_match_id = function() {
     return false;
 };
 
+/**
+ * Sets the currently loaded match id (on successful server response)
+ * @param match_id
+ */
 dream.Simulator.set_loaded_match_id = function(match_id) {
     $('#field-canvas-match-id').val(match_id);
 };
 
-dream.Simulator.handlers = {};
+// ############################################################################
+// ############################################################################
+dream.Simulator.actions = {};
 
-dream.Simulator.handlers.select_match = function(event) {
+/**
+ * Handles the 'load match' button after the selection was done
+ * @param event
+ */
+dream.Simulator.actions.select_match = function(event) {
     var match_id, selected_option, canvas;
 
     canvas = event.data['canvas'];
@@ -191,7 +246,11 @@ dream.Simulator.handlers.select_match = function(event) {
     }
 };
 
-dream.Simulator.handlers.sim_new_tick = function(event) {
+/**
+ * Handles the 'new tick' button
+ * @param event
+ */
+dream.Simulator.actions.sim_new_tick = function(event) {
     var canvas = event.data['canvas'],
         match_id = dream.Simulator.get_loaded_match_id();
 
@@ -200,28 +259,12 @@ dream.Simulator.handlers.sim_new_tick = function(event) {
         alert('No match selected');
     }
 
-    console.log('Create new tick for' + match_id);
-
-    /* TODO <-- Aici am ramas [29.12.2015] Implementat AJAX call pentru actiunea asta
-    dream.Simulator.create_next_tick = function(match_id, canvas) {
-        var location, params;
-
-        location = window.location.href;
-        params = {id: match_id, next_tick: 1 };
-
-        $.ajax({
-            url: '/soccer/dev/simulator/api/?' + $.param(params),
-            method: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                // do stuff with the data
-                canvas.load_board(data);
-            }
-        });
-    };
-    */
+    console.log('Create new tick for match_id: ' + match_id);
+    dream.Simulator.new_tick(match_id, canvas);
 };
 
+// ############################################################################
+// ############################################################################
 $(document).ready(function() {
     var canvas, context;
 
@@ -232,37 +275,8 @@ $(document).ready(function() {
 
     context['canvas'] = canvas;
 
-    $('#btn-match-selected').click(context, dream.Simulator.handlers.select_match);
-    $('#btn-sim-new-tick').click(context, dream.Simulator.handlers.sim_new_tick);
+    $('#btn-match-selected').click(context, dream.Simulator.actions.select_match);
+    $('#btn-sim-new-tick').click(context, dream.Simulator.actions.sim_new_tick);
 
-/*
-    $('#get_ticks').click(function() {
-        var match_id;
-
-        match_id = parseInt( $('#match_id').val() );
-
-        if ( !isNaN( match_id ) ) {
-            dream.Simulator.get_ticks_for_match(match_id);
-        }
-    });
-
-    $('#get_board').click(function() {
-        var match_id;
-
-        match_id = parseInt( $('#match_id').val() );
-
-        if ( !isNaN( match_id ) ) {
-            dream.Simulator.load_match(match_id, canvas);
-        }
-    });
-
-    $('#next_tick').click(function() {
-        var match_id;
-
-        match_id = parseInt( $('#match_id').val() );
-
-        if ( !isNaN( match_id ) ) {
-            dream.Simulator.create_next_tick(match_id, canvas);
-        }
-    });*/
+    // TODO: [01.01.2016] > Previous/Next and delete tick buttons
 });
