@@ -41,25 +41,25 @@
             <div class="small-12 columns">
                 <ul class="icon-bar five-up no-margins">
                     <li>
-                        <a class="item" href="javascript:void(0)">
+                        <a id="btn-sim-prev-tick" class="item" href="javascript:void(0)">
                             <img src="{% static 'img/ticks-previous.png' %}" alt="Previous"/>
                             <label>Previous</label>
                         </a>
                     </li>
                     <li>
-                        <a class="item" href="javascript:void(0)">
+                        <a id="btn-sim-next-tick" class="item" href="javascript:void(0)">
                             <img src="{% static 'img/ticks-next.png' %}" alt="Next"/>
                             <label>Next</label>
                         </a>
                     </li>
                     <li>
-                        <a name="btn-sim-new-tick" id="btn-sim-new-tick" class="item" href="javascript:void(0)">
+                        <a id="btn-sim-new-tick" class="item" href="javascript:void(0)">
                             <img src="{% static 'img/ticks-new.png' %}" alt="New"/>
                             <label>New</label>
                         </a>
                     </li>
                     <li>
-                        <a class="item" href="javascript:void(0)">
+                        <a id="btn-sim-delete-tick" class="item" href="javascript:void(0)">
                             <img src="{% static 'img/ticks-delete.png' %}" alt="Delete"/>
                             <label>Delete</label>
                         </a>
@@ -69,30 +69,30 @@
         </div>
         <div class="row">
             <div class="small-3 columns">
-                <span>#123</span>
+                <span id="stats-match-id">n/a</span>
             </div>
             <div class="small-4 columns text-center">
-                <span>Home Team</span>
+                <span id="stats-home-name">-</span>
             </div>
             <div class="small-1 columns text-center">
                 <span>vs</span>
             </div>
             <div class="small-4 columns text-center">
-                <span>Away Team</span>
+                <span id="stats-away-name">-</span>
             </div>
         </div>
         <div class="row">
             <div class="small-3 columns">
-                <span>12' [565]</span>
+                <span id="stats-minute"></span> <span id="stats-tick"></span>
             </div>
             <div class="small-4 columns text-center">
-                <span>1</span>
+                <span id="stats-home-points">-</span>
             </div>
             <div class="small-1 columns text-center">
                 <span>&nbsp;</span>
             </div>
             <div class="small-4 columns text-center">
-                <span>2</span>
+                <span id="stats-away-points">-</span>
             </div>
         </div>
         <div class="row">
@@ -101,6 +101,7 @@
                 <!-- Nice canvas tutorial: http://diveintohtml5.info/canvas.html -->
                 <canvas id="field-canvas" width="420" height="660"></canvas>
                 <input type="hidden" id="field-canvas-match-id"/>
+                <input type="hidden" id="info-current-tick-num"/>
             </div>
         </div>
     </div>

@@ -18,6 +18,10 @@ dream.Canvas = function(elementId) {
 dream.Canvas.settings = {};
 dream.Canvas.initd = false;
 
+// TODO: Canvas should be singleton!
+
+dream.Context = dream.Context || {};
+
 /**
  * Get server side setup data to initialize the canvas
  */
@@ -123,6 +127,7 @@ dream.Canvas.prototype.draw_board = function(board_data) {
 
 // ############################################################################
 // ############################################################################
+// TODO: Organize as a nested object and define further standards for JS vars, etc.
 dream.Simulator = function() {
     // Initialize simulator
 };
@@ -144,6 +149,10 @@ dream.Simulator.load_ticks = function(ticks_list) {
         '<th>Journal</th>' +
         '</tr>';
     table.append(htmlHead);
+
+    var max_tick = -1;
+    var max_minute = -1;
+
     $.each(ticks_list, function(idx, row) {
         var html = '<tr>' +
             '<td>' + row['tick_id'] + '</td>' +
@@ -153,7 +162,16 @@ dream.Simulator.load_ticks = function(ticks_list) {
             '<td>' + 'modified' + '</td>' +
             '</tr>';
         table.append(html);
+
+        // Record the current tick (aka max_tick)
+        if ( row['tick'] > max_tick ) {
+            max_tick = row['tick'];
+            max_minute = row['minute'];
+        }
     });
+
+    dream.Simulator.set_current_tick(max_tick);
+    dream.Simulator.ui_update_stats(null, null, max_minute, max_tick);
 };
 
 /**
@@ -177,13 +195,52 @@ dream.Simulator.load_match = function(match_id, canvas) {
             canvas.load_board($.parseJSON(data['board-state']));
             dream.Simulator.load_ticks(data['ticks-list']);
             dream.Simulator.set_loaded_match_id(match_id);
+
+            // Update match stats
+            dream.Simulator.ui_update_stats(match_id, data['match-stats']);
+
         },
         beforeSend: dream.utils.setCsrfToken()
     });
 };
 
+/**
+ * Updates the ui with basic match information
+ * @param match_id
+ * @param match_stats
+ * @param minute
+ * @param tick
+ */
+dream.Simulator.ui_update_stats = function(match_id, match_stats, minute, tick) {
+    if ( match_id ) {
+        $('#stats-match-id').text('#' + match_id);
+    }
+
+    if ( match_stats ) {
+        $('#stats-home-name').text(match_stats['home-name']);
+        $('#stats-away-name').text(match_stats['away-name']);
+
+        $('#stats-home-points').text(match_stats['home-points']);
+        $('#stats-away-points').text(match_stats['away-points']);
+    }
+
+    if ( minute ) {
+        $('#stats-minute').text(minute + '\'');
+    }
+
+    if ( tick ) {
+        $('#stats-tick').text('[' + tick + ']');
+    }
+};
+
+/**
+ * API call to create a new tick and paint it on the canvas
+ *
+ * @param match_id
+ * @param canvas
+ */
 dream.Simulator.new_tick = function(match_id, canvas) {
-        var params = {
+    var params = {
         'match-id': match_id,
         'get-board': true,
         'get-ticks': -1,
@@ -196,6 +253,77 @@ dream.Simulator.new_tick = function(match_id, canvas) {
         data: params,
         dataType: 'json',
         success: function(data) {
+            canvas.load_board($.parseJSON(data['board-state']));
+            dream.Simulator.load_ticks(data['ticks-list']);
+        },
+        beforeSend: dream.utils.setCsrfToken()
+    });
+};
+
+/**
+ * API call to return the board state at the tick
+ * passed as argument and paint it on given canvas
+ *
+ * @param tick_num
+ * @param canvas
+ * @returns {boolean}
+ */
+dream.Simulator.get_tick = function(tick_num, canvas) {
+    var match_id = dream.Simulator.get_loaded_match_id();
+
+    if (false === match_id) {
+        alert ('No match loaded');
+        return false;
+    }
+
+    var params = {
+        'match-id': match_id,
+        'get-board': true,
+        'get-ticks': tick_num
+    };
+
+    $.ajax({
+        url: dream.Context['simulator-api'],
+        method: 'POST',
+        data: params,
+        dataType: 'json',
+        success: function(data) {
+            // TODO: Abstract method with beforeLoadCanvas && afterLoadTicks callbacks
+            canvas.load_board($.parseJSON(data['board-state']));
+            dream.Simulator.load_ticks(data['ticks-list']);
+        },
+        beforeSend: dream.utils.setCsrfToken()
+    });
+};
+
+/**
+ * API call to delete all ticks strictly greater than given tick_num
+ * and paint the previous tick on canvas
+ * @param tick_num
+ * @param canvas
+ */
+dream.Simulator.delete_ticks_after = function(tick_num, canvas) {
+    var match_id = dream.Simulator.get_loaded_match_id();
+
+    if (false === match_id) {
+        alert ('No match loaded');
+        return false;
+    }
+
+    var params = {
+        'match-id': match_id,
+        'get-board': true,
+        'get-ticks': tick_num,
+        'delete-ticks': tick_num
+    };
+
+    $.ajax({
+        url: dream.Context['simulator-api'],
+        method: 'POST',
+        data: params,
+        dataType: 'json',
+        success: function(data) {
+            // TODO: Abstract method with beforeLoadCanvas && afterLoadTicks callbacks
             canvas.load_board($.parseJSON(data['board-state']));
             dream.Simulator.load_ticks(data['ticks-list']);
         },
@@ -225,6 +353,20 @@ dream.Simulator.set_loaded_match_id = function(match_id) {
     $('#field-canvas-match-id').val(match_id);
 };
 
+dream.Simulator.get_current_tick = function() {
+    var tick_num = parseInt( $('#info-current-tick-num').val() );
+
+    if ( !isNaN(tick_num) ) {
+        return tick_num;
+    }
+
+    return false;
+};
+
+dream.Simulator.set_current_tick = function(tick_num) {
+    $('#info-current-tick-num').val(tick_num);
+};
+
 // ############################################################################
 // ############################################################################
 dream.Simulator.actions = {};
@@ -251,16 +393,69 @@ dream.Simulator.actions.select_match = function(event) {
  * @param event
  */
 dream.Simulator.actions.sim_new_tick = function(event) {
-    var canvas = event.data['canvas'],
-        match_id = dream.Simulator.get_loaded_match_id();
+    var canvas = event.data['canvas'];
+    var match_id = dream.Simulator.get_loaded_match_id();
 
     if (false === match_id) {
-        //No match selected
+        // No match selected
         alert('No match selected');
     }
 
     console.log('Create new tick for match_id: ' + match_id);
-    dream.Simulator.new_tick(match_id, canvas);
+
+    return dream.Simulator.new_tick(match_id, canvas);
+};
+
+/**
+ * Handles the 'next tick' button
+ * @param event
+ */
+dream.Simulator.actions.sim_next_tick = function(event) {
+    var current_tick = dream.Simulator.get_current_tick();
+    if (!current_tick) {
+        alert('No current tick!');
+        return false;
+    }
+
+    var next_tick = current_tick + 1;
+    var canvas = event.data['canvas'];
+
+    return dream.Simulator.get_tick(next_tick, canvas);
+};
+
+/**
+ * Handles the 'previous tick' button
+ * @param event
+ */
+dream.Simulator.actions.sim_prev_tick = function(event) {
+    var current_tick = dream.Simulator.get_current_tick();
+    if (!current_tick) {
+        alert('No current tick!');
+        return false;
+    }
+
+    var canvas = event.data['canvas'];
+    var prev_tick = current_tick - 1;
+
+    return dream.Simulator.get_tick(prev_tick, canvas);
+};
+
+/**
+ * Handles the 'delete tick' button
+ * @param event
+ */
+dream.Simulator.actions.sim_delete_tick = function(event) {
+    var current_tick = dream.Simulator.get_current_tick();
+    if (!current_tick) {
+        alert('No current tick!');
+        return false;
+    }
+
+    // TODO: Add confirm dialog
+
+    var canvas = event.data['canvas'];
+    var prev_tick = current_tick - 1;
+    return dream.Simulator.delete_ticks_after(prev_tick, canvas);
 };
 
 // ############################################################################
@@ -277,6 +472,8 @@ $(document).ready(function() {
 
     $('#btn-match-selected').click(context, dream.Simulator.actions.select_match);
     $('#btn-sim-new-tick').click(context, dream.Simulator.actions.sim_new_tick);
-
+    $('#btn-sim-next-tick').click(context, dream.Simulator.actions.sim_next_tick);
+    $('#btn-sim-prev-tick').click(context, dream.Simulator.actions.sim_prev_tick);
+    $('#btn-sim-delete-tick').click(context, dream.Simulator.actions.sim_delete_tick);
     // TODO: [01.01.2016] > Previous/Next and delete tick buttons
 });

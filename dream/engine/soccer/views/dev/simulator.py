@@ -54,14 +54,17 @@ class SimulatorView(View):
     def get_match_info(self, query, match_id):
         response = {}
 
-        if 'get-ticks' in query:
-            response.update(self.get_ticks(query, match_id))
-        if 'get-board' in query:
-            response.update(self.get_board(query, match_id))
         if 'new-tick' in query:
             response.update(self.new_tick(query, match_id))
         if 'delete-ticks' in query:
             response.update(self.delete_ticks(query, match_id))
+        # Getters should always be handled last (after delete or create)
+        if 'get-ticks' in query:
+            response.update(self.get_ticks(query, match_id))
+        if 'get-board' in query:
+            response.update(self.get_board(query, match_id))
+
+        response.update(self.get_match_stats(query, match_id))
 
         return response
 
@@ -118,4 +121,39 @@ class SimulatorView(View):
 
     def delete_ticks(self, query, match_id):
         response = {}
+
+        delete_after_tick = int(query['delete-ticks'])
+
+        MatchLog\
+            .objects\
+            .filter(
+                match__pk=match_id,
+                tick__gt=delete_after_tick
+            )\
+            .delete()
+
+        # [TBD] Such actions should later be logged?
+        return response
+
+    def get_match_stats(self, query, match_id):
+        """
+        Info provided for any api call with match-id
+        :return:    updated response
+        :rtype:     dict
+        """
+        response = {}
+
+        from dream.core.models import MatchTeam
+
+        mts = MatchTeam.objects.filter(match__pk=match_id)
+        stats = {}
+        for mt in mts:
+            if mt.role == 'home':
+                stats['home-name'] = mt.team.name
+                stats['home-points'] = mt.points
+            if mt.role:
+                stats['away-name'] = mt.team.name
+                stats['away-points'] = mt.points
+
+        response['match-stats'] = stats
         return response

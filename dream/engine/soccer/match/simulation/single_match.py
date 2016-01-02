@@ -10,6 +10,7 @@ from dream.core.models import MatchLog
 from .base import BaseSimulation
 
 
+# @deprecated TODO: Remove this class
 class SingleMatch(BaseSimulation):
     """
     Simulates a single soccer match
