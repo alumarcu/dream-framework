@@ -6,20 +6,19 @@ from dream.engine.soccer.match.board import Board
 class Ticker:
     def __init__(self, board):
         self.board = board
+        self.logged = []
 
     def perform(self):
         if type(self.board) is not Board:
             raise SimulationError(_('Board not initialized in the ticker!'))
 
         gs = self.board.grid_state()
-        tick = gs.tick(new_tick=True)
-
-        time = (gs.game_minute, tick)
+        gs.tick(new_tick=True)
 
         move_queue = self.create_move_queue()
 
         for player in move_queue:
-            self.animate_player(player, time)
+            self.animate_player(player)
 
     def create_move_queue(self):
         # Returns a list of 22 players and the
@@ -45,14 +44,20 @@ class Ticker:
         # We know who is (gs.player_with_ball)
         return move_queue
 
-    def animate_player(self, player, time):
-        gs = self.board.grid_state()
-        logger = self.board.logger
+    def animate_player(self, player):
+        self.log('{} has the next action.'.format(player))
 
-        logger.log('%s has the next action.' % player, simtime=time)
-        # Moves a FieldPlayer
+        # Move the FieldPlayer
         possible_actions = player.get_possible_actions()
-        logger.log('Possible actions are: %s' % possible_actions, simtime=time)
+        self.log('Possible actions are: {}'.format(possible_actions))
+
+    def log(self, message):
+        self.logged.append(self.board.log(message))
+
+    def get_log(self):
+        ret = self.logged
+        self.logged = []
+        return ret
 
     """
     === 1) Get players order of movement based on a base logic

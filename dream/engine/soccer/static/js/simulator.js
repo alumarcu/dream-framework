@@ -175,6 +175,27 @@ dream.Simulator.load_ticks = function(ticks_list) {
 };
 
 /**
+ * @param tick_log
+ */
+dream.Simulator.add_to_log = function(tick_log) {
+    // TODO: Have better specs for this feature and better implementation
+    var logs_area = $('#logs-area');
+    var current_logs_text = logs_area.text();
+    if ('No logs available yet.' === current_logs_text) {
+        current_logs_text = '';
+    }
+
+    if ('' === current_logs_text) {
+        current_logs_text = tick_log.join("\n");
+    } else {
+        var sep = '\n----------------------------------------\n';
+        current_logs_text = tick_log.join("\n") + sep + current_logs_text;
+    }
+
+    logs_area.text(current_logs_text);
+};
+
+/**
  * Loads the match with a given id and renders it on the interface
  * @param match_id
  * @param canvas
@@ -255,6 +276,7 @@ dream.Simulator.new_tick = function(match_id, canvas) {
         success: function(data) {
             canvas.load_board($.parseJSON(data['board-state']));
             dream.Simulator.load_ticks(data['ticks-list']);
+            dream.Simulator.add_to_log($.parseJSON(data['tick-log']));
         },
         beforeSend: dream.utils.setCsrfToken()
     });
@@ -288,7 +310,7 @@ dream.Simulator.get_tick = function(tick_num, canvas) {
         data: params,
         dataType: 'json',
         success: function(data) {
-            // TODO: Abstract method with beforeLoadCanvas && afterLoadTicks callbacks
+            // TODO: Abstract method with beforeLoadCanvas and afterLoadTicks callbacks
             canvas.load_board($.parseJSON(data['board-state']));
             dream.Simulator.load_ticks(data['ticks-list']);
         },

@@ -8,6 +8,7 @@ from dream.core.models import Match
 class ManualMatch:
     """
     A match that is played step-by-step for debugging purposes
+    :type ticker Ticker
     """
     def __init__(self, match_id):
         self.logger = Logger(__name__, Logger.default_message)
@@ -74,14 +75,6 @@ class ManualMatch:
         # Save the new match log
         ml.save()
 
-    def delete_ticks_from(self, tick_id):
-        """
-        Will delete all ticks following and including a given tick_id
-        :param tick_id:
-        :return:
-        """
-        pass
-
     def begin_simulation(self):
         if self.match.status < Match.STATUS_SIM_IN_PROGRESS:
             self.match.status = Match.STATUS_SIM_IN_PROGRESS
@@ -108,3 +101,6 @@ class ManualMatch:
         }
 
         return data
+
+    def last_tick_info(self):
+        return self.ticker.get_log()

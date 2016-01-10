@@ -116,12 +116,15 @@ class SimulatorView(View):
         # a simulation method should do specifically what is requested -
         # create a new tick but not start a loop (called in loop though)
 
-        response['board_state'] = json_encode(mm.match_info())
+        response['tick-log'] = json_encode(mm.last_tick_info())
         return response
 
     def delete_ticks(self, query, match_id):
+        """
+        Deletes everything after a given tick (but not that tick)
+        """
         response = {}
-
+        # TODO: These methods may also be moved elsewhere
         delete_after_tick = int(query['delete-ticks'])
 
         MatchLog\

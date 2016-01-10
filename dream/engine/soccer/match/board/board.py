@@ -29,6 +29,11 @@ class Board:
     def log(self, message, level=Logger.LEVEL_DEBUG, **kwargs):
         kwargs['simtime'] = (self.grid_state().game_minute, self.grid_state().tick_id)
         self.logger.log(message, level, **kwargs)
+        return '[DEBUG][M:{min:03d}_T:{tick:04d}] {msg}'.format(
+            min=self.grid_state().game_minute,
+            tick=self.grid_state().tick_id,
+            msg=message
+        )
 
     def initialize_teams(self):
         self.teams = {
