@@ -36,6 +36,8 @@ class Board:
         )
 
     def initialize_teams(self):
+        # TODO: 'home' and 'away' should be renamed to top and bottom (and define as constants),
+        # TODO: since there will be a toss of coin for the field [ home = top, bottom = away ]
         self.teams = {
             'home': None,
             'away': None,
@@ -56,43 +58,24 @@ class Board:
 
         return data
 
-    def from_dict(self, data, tactics):
-        from dream.engine.soccer.match.actors import FieldTeam
-        from dream.engine.soccer.service.simulation import SimulationService
-
-        sim_service = SimulationService()
+    def from_dict(self, data):
         self.rows = data['rows']
         self.cols = data['cols']
-
         self.zones = data['zones']
         self.zone_len = data['zone_len']
         self.zone_width = data['zone_width']
-
-        for team_key in data['teams']:
-            team = FieldTeam(team_key)
-            team.field_players = sim_service.create_field_players(team, tactics)
-            team.from_dict(data['teams'][team_key])
-            self.teams[team_key] = team
-
-        fp_cache = {}  # player IDs => FieldPlayer
-        for team in self.teams.values():
-            for fp in team.players():
-                fp.team = team
-                fp_cache[fp.id()] = fp
-
-        self.grid = Grid().from_dict(data['grid'], fp_cache)
-
         return self
-
-    @staticmethod
-    def load_state(data, tactics):
-        board = Board()
-        return board.from_dict(data, tactics)
 
     def team_keys(self):
         return [key for key in self.teams.keys()]
 
     def create_field_team(self, team_key):
+        """
+        :param team_key:
+        :type team_key:
+        :return:
+        :rtype: dream.engine.soccer.match.actors.FieldTeam
+        """
         from dream.engine.soccer.match.actors import FieldTeam
         self.teams[team_key] = FieldTeam(team_key)
         return self.teams[team_key]

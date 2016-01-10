@@ -8,14 +8,14 @@ from dream.core.models import Match
 class ManualMatch:
     """
     A match that is played step-by-step for debugging purposes
-    :type ticker Ticker
+    :type ticker    dream.engine.soccer.match.Ticker
+    :type board     dream.engine.soccer.match.board.Board
     """
     def __init__(self, match_id):
         self.logger = Logger(__name__, Logger.default_message)
         self.match = Match.objects.get(pk=match_id)
-        self.sim_service = SimulationService()
+        self.sim_service = SimulationService(self.match)
         self.match_log = None
-        self.tactics = None
         self.board = None
         self.ticker = None
         self.info = {
@@ -24,21 +24,18 @@ class ManualMatch:
         }
 
     def initialize(self, tick_id=None):
-        self.tactics = self.sim_service.fetch_tactics(self.match)
-
         if tick_id is not None:
             self.go_to_tick(tick_id)
 
         else:
-            self.board = self.sim_service.create_board(self.tactics)
+            self.board = self.sim_service.create_board()
             self.ticker = Ticker(self.board)
 
             self.match.status = Match.STATUS_SIM_STARTED
             self.match.save()
 
     def go_to_tick(self, tick_id):
-        self.board, self.match_log, last_state = self.sim_service\
-            .resume_board(self.match, tick_id, self.tactics)
+        self.board, self.match_log, last_state = self.sim_service.resume_board(tick_id)
 
         self.ticker = Ticker(self.board)
         self.info['last_state'] = last_state

@@ -9,66 +9,77 @@ from dream.tools import Logger, toss_coin
 
 
 class SimulationService:
-    def __init__(self):
+    def __init__(self, match):
         self.logger = Logger(__name__, Logger.default_message)
-
-    def fetch_tactics(self, match):
-        from dream.core.models import MatchTeam
-        match_teams = MatchTeam.objects.filter(match=match)
-        tactics = {}
-        for mt in match_teams:
-            key = mt.role
-            decoded_tactics = self.decode_tactics(mt.tactics)
-            if self.validate_tactics(decoded_tactics):
-                tactics[key] = decoded_tactics
-        return tactics
-
-    def decode_tactics(self, tactics_json):
-        try:
-            decoded_tactics = json_decode(tactics_json)
-        except Exception as e:
-            raise SimulationError('Could not decode tactics!')
-        return decoded_tactics
+        self.match = match
+        self.tactics = self._fetch_tactics(self.match)
 
     def validate_tactics(self, decoded_tactics):
         return True
 
-    def resume_board(self, match, tick_id, tactics):
+    def resume_board(self, tick_id):
+        """
+        Resumes board at given tick
+        :param tick_id:
+        :type tick_id:
+        :return:
+        :rtype:
+        """
+        from dream.engine.soccer.match.board import Grid
         self.logger.log('LOAD EXISTING BOARD AT TICK %s' % tick_id)
 
-        match_log = self.go_to_tick(match, tick_id)
+        match_log = self.go_to_tick(self.match, tick_id)
 
-        last_state = json_decode(match_log.state)
-        board = Board.load_state(last_state['board'], tactics)
+        match_state = json_decode(match_log.state)
+        board_data = match_state['board']
+        teams_data = board_data['teams']
+        grid_data = board_data['grid']
 
-        return board, match_log, last_state
+        board = (Board()).from_dict(board_data)
+        for team_key in teams_data:
+            team = board.create_field_team(team_key)
+            team.field_players = self.create_field_players(team)
+            team.from_dict(teams_data[team_key])
+            board.teams[team_key] = team
 
-    def create_board(self, tactics):
+        fp_cache = {}  # player IDs => FieldPlayer
+        for team in board.teams.values():
+            for fp in team.players():
+                fp.team = team
+                fp_cache[fp.id()] = fp
+
+        board.grid = (Grid()).from_dict(grid_data, fp_cache)
+
+        return board, match_log, match_state
+
+    def create_board(self):
         self.logger.log('CREATE NEW BOARD')
 
         board = Board()
         board.initialize()
-        self.place_teams_on_board(board, tactics)
+        # TODO: Logic for board initialization on second half.
+
+        self.place_teams_on_board(board)
 
         return board
 
-    def place_teams_on_board(self, board, tactics):
+    def place_teams_on_board(self, board):
         # Decide the team that gets to kick off
         kickoff_team = toss_coin(board.team_keys())
 
         for team_key in board.team_keys():
             team = board.create_field_team(team_key)
-            team.field_players = self.create_field_players(team, tactics)
+            team.field_players = self.create_field_players(team)
             team.kickoff_first = True if team.key() == kickoff_team else False
 
             for player in team.field_players:
                 board.place_player_on_field(player)
 
-    def create_field_players(self, team, tactics):
+    def create_field_players(self, team):
         from dream.core.models import Npc, NpcAttribute
         from dream.engine.soccer.match.actors import FieldPlayer
 
-        players = tactics[team.key()]['players']
+        players = self.tactics[team.key()]['players']
         ids = [p['id'] for p in players]
         npcs = Npc.objects.filter(pk__in=ids)
         npc_attributes = NpcAttribute.objects.filter(npc__in=ids)
@@ -131,3 +142,22 @@ class SimulationService:
                             .format(tick_id, match.pk)))
 
         return match_log
+
+    def _fetch_tactics(self, match):
+        from dream.core.models import MatchTeam
+
+        match_teams = MatchTeam.objects.filter(match=match)
+        tactics = {}
+        for mt in match_teams:
+            key = mt.role
+            decoded_tactics = self._decode_tactics(mt.tactics)
+            if self.validate_tactics(decoded_tactics):
+                tactics[key] = decoded_tactics
+        return tactics
+
+    def _decode_tactics(self, tactics_json):
+        try:
+            decoded_tactics = json_decode(tactics_json)
+        except Exception as e:
+            raise SimulationError('Could not decode tactics!')
+        return decoded_tactics

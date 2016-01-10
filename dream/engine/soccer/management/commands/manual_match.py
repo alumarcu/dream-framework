@@ -3,6 +3,9 @@ import traceback
 
 
 class Command(BaseCommand):
+    """
+    This is a debug command.
+    """
     help = 'Process a single match by a given id'
 
     def add_arguments(self, parser):
@@ -11,6 +14,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from dream.engine.soccer.match.simulation import ManualMatch
         try:
+            print('Configure ./engine/soccer/management/commands/manual_match.py command first!')
+            exit(0)
+
             mm = ManualMatch(options['match_id'])
             mm.initialize(tick_id=-1)
             mm.begin_simulation()
