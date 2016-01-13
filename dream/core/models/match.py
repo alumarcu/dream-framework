@@ -1,5 +1,5 @@
 from django.db.models import Model, DateTimeField, ForeignKey, \
-    IntegerField, SmallIntegerField, BooleanField
+    IntegerField, PositiveSmallIntegerField, BooleanField
 from django.utils.translation import ugettext_lazy as _
 
 from . import Division
@@ -30,10 +30,10 @@ class Match(Model):
     stadium = IntegerField(null=True, blank=True)
 
     # Tells whether simulation or rendering is currently running
-    status = SmallIntegerField(default=1)
+    status = PositiveSmallIntegerField(default=1)
 
     # Number of minutes passed during rendering
-    render_progress = SmallIntegerField(null=True, blank=True)
+    render_progress = PositiveSmallIntegerField(null=True, blank=True)
 
     date_scheduled = DateTimeField(_('scheduled on'), blank=True, null=True)
     created = DateTimeField(auto_now_add=True)
