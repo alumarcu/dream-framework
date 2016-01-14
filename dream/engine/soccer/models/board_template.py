@@ -6,7 +6,12 @@ class BoardTemplate(_m.Model):
     """
     Defines the format of the board
     """
+    description = _m.CharField(_('description'), max_length=140, blank=True)
+
     rows = _m.PositiveSmallIntegerField(_('number of board rows'))
+
     cols = _m.PositiveSmallIntegerField(_('number of board zones'))
+
     zone_height = _m.PositiveSmallIntegerField(_('zone height (in cells)'))
+
     zone_width = _m.PositiveSmallIntegerField(_('zone width (in cells)'))
