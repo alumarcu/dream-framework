@@ -14,12 +14,36 @@ class Command(BaseCommand):
         Calculates the zones of the selected board template and updates the FieldZoneXy table
         """
         from dream.engine.soccer.tools import engine_params
-        from dream.engine.soccer.models import BoardTemplate
+        from dream.engine.soccer.models import BoardTemplate, FieldZone, FieldZoneXy
 
         template_param = engine_params('template')
+        """:type : dream.engine.soccer.models.EngineParam"""
 
         template_id = template_param.value
-        template = BoardTemplate.objects.get(pk=template_id)
+
+        tmpl = BoardTemplate.objects.get(pk=template_id)
+        """:type : dream.engine.soccer.models.BoardTemplate"""
+
+        field_zones = FieldZone.objects.all()
+        """:type : list[dream.engine.soccer.models.FieldZone]"""
+
+        grid_width = tmpl.cols * tmpl.zone_width
+        grid_height = tmpl.rows * tmpl.zone_height
+
+        for fz in field_zones:
+            fz_xy = FieldZoneXy()
+            """:type : dream.engine.soccer.models.FieldZoneXy"""
+
+            fz_xy.zone = fz
+            fz_xy.template = template_id
+
+            fz_xy.home_xi = fz.col * tmpl.zone_width - tmpl.zone_width
+            fz_xy.home_xj = fz.col * tmpl.zone_width
+
+            fz_xy.home_yi = fz.row * tmpl.zone_height - tmpl.zone_height
+            fz_xy.home_yj = fz.row * tmpl.zone_height
+
+            #fz_xy.away_xi =
 
         # TODO: Compute zones
 
