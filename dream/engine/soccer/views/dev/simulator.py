@@ -44,10 +44,21 @@ class SimulatorView(View):
         return matches
 
     def get_board_setup(self, query):
+        from dream.core.models import BoardTemplate
+
+        # This is considered to be default
+        template_param = engine_params('template')
+        """:type : dream.core.models.EngineParam"""
+
+        template_id = template_param.value
+
+        tmpl = BoardTemplate.objects.get(pk=template_id)
+        """:type : dream.core.models.BoardTemplate"""
+
         response = {}
         response['setup-data'] = {
-            'grid_width': engine_params(key='grid_width').value,
-            'grid_length': engine_params(key='grid_length').value,
+            'grid_width': tmpl.width(),
+            'grid_length': tmpl.height(),
         }
         return response
 

@@ -65,10 +65,10 @@ class ManualMatch:
         ml.minute = gs.game_minute
         ml.tick = gs.tick_id
         ml.state = json_encode(state, separators=(',', ':'))
+        ml.player_with_ball = gs.player_with_ball.npc
+        ml.action_status = gs.action_status()
         # TODO: Move this somewhere where data from the start of match is stored
         # ticks_per_min should always remain the same as at start of match
-        from dream.engine.soccer.tools import engine_params
-        ml.ticks_per_min = engine_params(key='match_ticks_per_minute').value
         # Save the new match log
         ml.save()
 

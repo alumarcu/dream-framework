@@ -15,3 +15,12 @@ class BoardTemplate(_m.Model):
     zone_height = _m.PositiveSmallIntegerField(_('zone height (in cells)'))
 
     zone_width = _m.PositiveSmallIntegerField(_('zone width (in cells)'))
+
+    def width(self):
+        return self.cols * self.zone_width
+
+    def height(self):
+        return self.rows * self.zone_height
+
+    class Meta:
+        verbose_name_plural = _('board templates')

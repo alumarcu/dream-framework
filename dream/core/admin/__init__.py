@@ -16,3 +16,4 @@ from .manager_attribute import ManagerAttributeAdmin
 from .country import CountryAdmin
 from .league import LeagueAdmin
 from .division import DivisionAdmin
+from .engine_param import EngineParamAdmin

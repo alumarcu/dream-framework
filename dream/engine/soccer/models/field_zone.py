@@ -9,3 +9,7 @@ class FieldZone(Model):
     code = CharField(_('zone code'), max_length=5)
     row = SmallIntegerField(default=0)
     col = SmallIntegerField(default=0)
+
+    def xy(self):
+        from .field_zone_xy import FieldZoneXy
+        return FieldZoneXy.objects.get(zone=self)

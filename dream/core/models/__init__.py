@@ -14,6 +14,8 @@ from .match_log import MatchLog
 from .match_journal import MatchJournal
 
 from .attribute import Attribute
+from .board_template import BoardTemplate
+from .engine_param import EngineParam
 
 # Associations
 from .assoc import *

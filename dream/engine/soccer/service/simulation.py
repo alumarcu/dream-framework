@@ -29,13 +29,16 @@ class SimulationService:
         self.logger.log('LOAD EXISTING BOARD AT TICK %s' % tick_id)
 
         match_log = self.go_to_tick(self.match, tick_id)
+        """:type : dream.core.models.MatchLog"""
 
         match_state = json_decode(match_log.state)
         board_data = match_state['board']
         teams_data = board_data['teams']
         grid_data = board_data['grid']
 
-        board = (Board()).from_dict(board_data)
+        # TODO: from_dict no longer required
+        board = (Board(template=self.match.board_template)).from_dict(board_data)
+
         for team_key in teams_data:
             team = board.create_field_team(team_key)
             team.field_players = self.create_field_players(team)
@@ -48,14 +51,22 @@ class SimulationService:
                 fp.team = team
                 fp_cache[fp.id()] = fp
 
-        board.grid = (Grid()).from_dict(grid_data, fp_cache)
+        grid = Grid()
+        grid.initialize(template=board.template)
+
+        grid.state.tick_id = match_log.tick
+        grid.state.game_minute = match_log.minute
+        grid.state.player_with_ball = match_log.player_with_ball
+        grid.state.action_status(match_log.action_status)
+
+        board.grid = grid.from_dict(grid_data, fp_cache)
 
         return board, match_log, match_state
 
     def create_board(self):
         self.logger.log('CREATE NEW BOARD')
 
-        board = Board()
+        board = Board(template=self.match.board_template)
         board.initialize()
         # TODO: Logic for board initialization on second half.
 
@@ -103,14 +114,13 @@ class SimulationService:
         state = {'board': board.as_dict()}
         state_json = json_encode(state, separators=(',', ':'))
 
-        log = MatchLog(match=match)
-        log.minute = board.grid_state().game_minute
-        log.tick = board.grid_state().tick_id
-        log.ticks_per_min = engine_params(key='match_ticks_per_minute').value
-        log.state = state_json
-        log.journal = journal
+        ml = MatchLog(match=match)
+        ml.minute = board.grid_state().game_minute
+        ml.tick = board.grid_state().tick_id
+        ml.state = state_json
+        ml.journal = journal
 
-        return log
+        return ml
 
     def create_player_action_ordering(self, players_list, kickoff_team):
         """

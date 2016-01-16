@@ -14,8 +14,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from dream.engine.soccer.match.simulation import ManualMatch
         try:
-            print('Configure ./engine/soccer/management/commands/manual_match.py command first!')
-            exit(0)
+            # print('Configure ./engine/soccer/management/commands/manual_match.py command first!')
+            # exit(0)
 
             mm = ManualMatch(options['match_id'])
             mm.initialize(tick_id=-1)

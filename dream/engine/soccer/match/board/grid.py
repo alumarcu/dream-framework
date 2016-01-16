@@ -5,22 +5,23 @@ from dream.engine.soccer.match.board.grid_cell import GridCell
 
 
 class Grid:
-    width = None
-    length = None
-    matrix = None
-    state = None
+    """
+    :type template: dream.core.models.BoardTemplate
+    :type state: dream.engine.soccer.match.board.GridState
+    """
 
     def __init__(self):
-        params = engine_params(section='pitch')
+        self.template = None
+        self.state = None
+        self.matrix = None
 
-        self.width = int(params['grid_width'])
-        self.length = int(params['grid_length'])
-
-    def initialize(self):
-        self.matrix = [[GridCell(self, w, l) for w in range(self.width)]
-                       for l in range(self.length)]
-
+    def initialize(self, template=None):
+        self.template = template
         self.state = GridState()
+
+        # Create one grid cell and contain the pitch as a matrix
+        self.matrix = [[GridCell(self, w, l) for w in range(self.template.width())]
+                       for l in range(self.template.height())]
 
     def pretty_print(self):
         ppgrid = ''
@@ -58,21 +59,18 @@ class Grid:
         coords = []
         if team_key == 'home':
             coords = [
-                (round(self.width / 2), round(self.length / 2)),
-                (round(self.width / 2) + 1, round(self.length / 2)),
+                (round(self.template.width() / 2), round(self.template.height() / 2)),
+                (round(self.template.width() / 2) + 1, round(self.template.height() / 2)),
                 ]
         elif team_key == 'away':
             coords = [
-                (round(self.width / 2) + 1, round(self.length / 2) + 1),
-                (round(self.width / 2), round(self.length / 2) + 1),
+                (round(self.template.width() / 2) + 1, round(self.template.height() / 2) + 1),
+                (round(self.template.width() / 2), round(self.template.height() / 2) + 1),
                 ]
         return coords
 
     def as_dict(self):
         data = {
-            'width': self.width,
-            'length': self.length,
-            'state': self.state.as_dict(),
             'matrix': [gc.as_dict()
                        for g_row in self.matrix
                        for gc in g_row if len(gc.as_dict()) > 0]
@@ -81,19 +79,12 @@ class Grid:
         return data
 
     def from_dict(self, data, fp_cache):
-        self.initialize()
-
-        self.width = data['width']
-        self.length = data['length']
-
-        self.state.from_dict(data['state'], fp_cache)
-
         for celldata in data['matrix']:
             cell = self.get_cell(celldata['xy'])
             if 'has_ball' in celldata:
                 cell.has_ball = True
             if 'players' in celldata:
-                # load players
+                # Load players
                 for player_id in celldata['players']:
                     self.place_player(fp_cache[player_id])
 

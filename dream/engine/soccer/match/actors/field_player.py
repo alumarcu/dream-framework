@@ -3,6 +3,10 @@ from dream.engine.soccer.exceptions import InitError, LoopError
 
 
 class FieldPlayer:
+    """
+    :type npc: dream.core.models.Npc
+    """
+
     # TODO: [ACT-03] Field player roles should be defined in db
     # rather than constants
     ROLE_CAPTAIN = 'captain'

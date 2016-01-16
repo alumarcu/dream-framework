@@ -1,11 +1,11 @@
-from django.db.models import Model, DateTimeField, ForeignKey, \
-    IntegerField, PositiveSmallIntegerField, BooleanField
+from django.db import models as _m
 from django.utils.translation import ugettext_lazy as _
 
-from . import Division
+from .division import Division
+from .board_template import BoardTemplate
 
 
-class Match(Model):
+class Match(_m.Model):
     """
     A match is part of a division and can have teams playing it.
     It may be part of a division's round and season. All teams
@@ -19,25 +19,31 @@ class Match(Model):
     STATUS_RENDER_IN_PROGRESS = 23
     STATUS_RENDER_FINISHED = 23
 
-    division = ForeignKey(Division)
+    division = _m.ForeignKey(Division)
 
-    round = IntegerField(null=True, blank=True)
-    season = IntegerField(null=True, blank=True)
-    can_be_draw = BooleanField(default=True)
+    round = _m.IntegerField(null=True, blank=True)
+
+    season = _m.IntegerField(null=True, blank=True)
+
+    can_be_draw = _m.BooleanField(default=True)
 
     # TODO: [MOD-03] Build a specialized class for stadiums
     # This should minimally know about name and capacity
-    stadium = IntegerField(null=True, blank=True)
+    stadium = _m.IntegerField(null=True, blank=True)
 
     # Tells whether simulation or rendering is currently running
-    status = PositiveSmallIntegerField(default=1)
+    status = _m.PositiveSmallIntegerField(default=1)
 
     # Number of minutes passed during rendering
-    render_progress = PositiveSmallIntegerField(null=True, blank=True)
+    render_progress = _m.PositiveSmallIntegerField(null=True, blank=True)
 
-    date_scheduled = DateTimeField(_('scheduled on'), blank=True, null=True)
-    created = DateTimeField(auto_now_add=True)
-    modified = DateTimeField(auto_now=True)
+    date_scheduled = _m.DateTimeField(_('scheduled on'), blank=True, null=True)
+
+    ticks_per_minute = _m.PositiveSmallIntegerField(_('match ticks per minute'), default=10)
+    board_template = _m.ForeignKey(BoardTemplate)
+
+    created = _m.DateTimeField(auto_now_add=True)
+    modified = _m.DateTimeField(auto_now=True)
 
     def __str__(self):
         return 'id: %s' % self.pk

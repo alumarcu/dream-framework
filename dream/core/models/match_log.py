@@ -1,18 +1,21 @@
 from django.db import models as _m
 from django.utils.translation import ugettext_lazy as _
 
-from . import Match
+from . import Match, Npc
 
 
 class MatchLog(_m.Model):
 
-    match = _m.ForeignKey(Match)
+    match = _m.ForeignKey(Match, on_delete=_m.CASCADE)
 
     minute = _m.SmallIntegerField(_('simulation minutes passed'), default=0)
 
     tick = _m.IntegerField(_('last tick id'), default=0)
 
-    ticks_per_min = _m.SmallIntegerField(_('simulation ticks per minute param'), default=0)
+    action_status = _m.CharField(_('match action status'), blank=True, max_length=60)
+
+    player_with_ball = _m.ForeignKey(Npc, on_delete=_m.CASCADE, null=True, blank=True,
+                                     default=None)
 
     # A JSON with data required to load the game state and resume after an interruption
     state = _m.TextField(blank=True)

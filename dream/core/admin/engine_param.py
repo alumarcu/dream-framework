@@ -1,5 +1,5 @@
 from django.contrib import admin
-from dream.engine.soccer.models import EngineParam
+from dream.core.models import EngineParam
 
 
 @admin.register(EngineParam)

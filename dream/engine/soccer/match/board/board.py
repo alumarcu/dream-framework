@@ -7,23 +7,19 @@ from dream.engine.soccer.match.board.grid import Grid
 
 
 class Board:
-    def __init__(self):
-        params = engine_params(section='tactics')
-
-        self.rows = int(params['board_grid_rows'])
-        self.cols = int(params['board_grid_cols'])
+    """
+    :type template: dream.core.models.BoardTemplate
+    :type grid: dream.engine.soccer.match.board.grid.Grid
+    """
+    def __init__(self, template):
+        self.template = template
         self.grid = Grid()
 
-        self.zones = None
-        self.zone_len = None
-        self.zone_width = None
         self.teams = {}
-
         self.logger = Logger(__name__, simulation_log_message)
 
     def initialize(self):
-        self.grid.initialize()
-        self.initialize_zones()
+        self.grid.initialize(template=self.template)
         self.initialize_teams()
 
     def log(self, message, level=Logger.LEVEL_DEBUG, **kwargs):
@@ -45,11 +41,6 @@ class Board:
 
     def as_dict(self):
         data = {
-            'rows': self.rows,
-            'cols': self.cols,
-            'zones': self.zones,
-            'zone_len': self.zone_len,
-            'zone_width': self.zone_width,
             'grid': self.grid.as_dict(),
             'teams': {}
         }
@@ -59,11 +50,7 @@ class Board:
         return data
 
     def from_dict(self, data):
-        self.rows = data['rows']
-        self.cols = data['cols']
-        self.zones = data['zones']
-        self.zone_len = data['zone_len']
-        self.zone_width = data['zone_width']
+        # TODO: Knowing the board template this info is loaded directly from a single source
         return self
 
     def team_keys(self):
@@ -80,41 +67,10 @@ class Board:
         self.teams[team_key] = FieldTeam(team_key)
         return self.teams[team_key]
 
-    def initialize_zones(self):
-        from dream.engine.soccer.models import FieldZone
-
-        raw_zones = FieldZone.objects.all()
-        self.zone_len = (self.grid.length / 2) / self.rows
-        self.zone_width = self.grid.width / self.cols
-
-        self.zones = {}
-        for zone in raw_zones:
-            self.zones[zone.code] = {
-                'home_len': (
-                    zone.row * self.zone_len - self.zone_len,
-                    zone.row * self.zone_len),
-                'home_width': (
-                    zone.col * self.zone_width - self.zone_width,
-                    zone.col * self.zone_width),
-                'away_len': (
-                    self.grid.length - (zone.row * self.zone_len - self.zone_len),
-                    self.grid.length - (zone.row * self.zone_len)),
-                'away_width': (
-                    self.grid.width - (zone.col * self.zone_width - self.zone_width),
-                    self.grid.width - (zone.col * self.zone_width)),
-                }
-
-            self.zones[zone.code]['home_center'] = self.get_zone_center(
-                self.zones[zone.code]['home_width'],
-                self.zones[zone.code]['home_len'])
-
-            self.zones[zone.code]['away_center'] = self.get_zone_center(
-                self.zones[zone.code]['away_width'],
-                self.zones[zone.code]['away_len'])
-
     def place_player_on_field(self, field_player):
         from dream.engine.soccer.match.actors import FieldPlayer
-        if type(field_player) is not FieldPlayer:
+
+        if not isinstance(field_player, FieldPlayer):
             message = _('Only FieldPlayer objects can be placed on field')
             raise InitError(message)
 
@@ -124,12 +80,3 @@ class Board:
 
     def grid_state(self):
         return self.grid.state
-
-    @staticmethod
-    def get_zone_center(width, length):
-        if (type(width) is not tuple) or (type(length) is not tuple):
-            return
-        return (
-            round((width[0] + width[1]) / 2),
-            round((length[0] + length[1]) / 2)
-        )

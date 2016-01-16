@@ -3,7 +3,7 @@ def engine_params(key=None, section=None):
     Returns a parameter or a section of engine parameters
     """
     if engine_params.cache is None:
-        from dream.engine.soccer.models import EngineParam
+        from dream.core.models import EngineParam
         engine_params.cache = EngineParam.objects.all()
 
     # Return a single parameter by key
