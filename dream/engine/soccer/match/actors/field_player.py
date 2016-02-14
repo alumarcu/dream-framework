@@ -15,6 +15,8 @@ class FieldPlayer:
     ROLE_PLAYMAKER = 'playmaker'
     ROLE_STRIKER = 'striker'
 
+    all_actions = None
+
     def __init__(self):
         self.npc = None
         self.attributes = None
@@ -37,8 +39,6 @@ class FieldPlayer:
         # in this case the action may be performed by
         # the one with best SPEED/INITIATIVE/CONCENTRATION
         self.has_ball_action = False
-
-        self.all_actions = None
 
     def as_dict(self):
         data = {
