@@ -114,20 +114,6 @@ class SimulationService:
 
         return field_players
 
-    def create_board_state_log(self, board, match, journal):
-        from dream.core.models import MatchLog
-
-        state = {'board': board.as_dict()}
-        state_json = json_encode(state, separators=(',', ':'))
-
-        ml = MatchLog(match=match)
-        ml.minute = board.grid_state().game_minute
-        ml.tick = board.grid_state().tick_id
-        ml.state = state_json
-        ml.journal = journal
-
-        return ml
-
     def create_player_action_ordering(self, players_list, kickoff_team):
         """
         Returns the order in which players execute actions during a tick;

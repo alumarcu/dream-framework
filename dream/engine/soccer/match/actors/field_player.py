@@ -40,7 +40,7 @@ class FieldPlayer:
         # the one with best SPEED/INITIATIVE/CONCENTRATION
         self.has_ball_action = False
 
-    def as_dict(self):
+    def export(self):
         data = {
             'npc': self.npc.pk,
             'pos': self.current_position,

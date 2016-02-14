@@ -89,7 +89,7 @@ class ManualMatch:
 
             players_list = []
             for player in field_team.field_players:
-                players_list.append(player.as_dict())
+                players_list.append(player.export())
 
             mtl.players = json_encode(players_list)
             mtl.save()
