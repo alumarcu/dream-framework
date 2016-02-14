@@ -10,6 +10,7 @@ class Board:
     """
     :type template: dream.core.models.BoardTemplate
     :type grid: dream.engine.soccer.match.board.grid.Grid
+    :type teams: dict[string, dream.engine.soccer.match.actors.FieldTeam]
     """
     def __init__(self, template):
         self.template = template
@@ -32,6 +33,7 @@ class Board:
         )
 
     def initialize_teams(self):
+        # TODO: TBD Below. Always should consider a team as home and one as away
         # TODO: 'home' and 'away' should be renamed to top and bottom (and define as constants),
         # TODO: since there will be a toss of coin for the field [ home = top, bottom = away ]
         self.teams = {
@@ -39,24 +41,19 @@ class Board:
             'away': None,
         }
 
-    def as_dict(self):
-        data = {
-            'grid': self.grid.as_dict(),
-            'teams': {}
-        }
-        for team_key in self.teams:
-            data['teams'][team_key] = self.teams[team_key].as_dict()
+    def export(self):
+        data = {}
+        data.update(self.grid.export())
+
+        # for team_key in self.teams:
+        # data['teams'].update(self.teams[team_key].export())
 
         return data
-
-    def from_dict(self, data):
-        # TODO: Knowing the board template this info is loaded directly from a single source
-        return self
 
     def team_keys(self):
         return [key for key in self.teams.keys()]
 
-    def create_field_team(self, team_key):
+    def create_field_team(self, match_team):
         """
         :param team_key:
         :type team_key:
@@ -64,16 +61,19 @@ class Board:
         :rtype: dream.engine.soccer.match.actors.FieldTeam
         """
         from dream.engine.soccer.match.actors import FieldTeam
-        self.teams[team_key] = FieldTeam(team_key)
-        return self.teams[team_key]
+        self.teams[match_team.role] = FieldTeam(match_team)
+        return self.teams[match_team.role]
 
     def place_player_on_field(self, field_player):
+        # TODO: Move this method into field_player class
         from dream.engine.soccer.match.actors import FieldPlayer
 
         if not isinstance(field_player, FieldPlayer):
             message = _('Only FieldPlayer objects can be placed on field')
             raise InitError(message)
 
+        # TODO: This is bugged and should be fixed later
+        raise NotImplementedError('Fix player_player_on_field zone calculation!')
         zone_center = self.zones[field_player.field_zone][field_player.team.key() + '_center']
 
         field_player.init_start_position(zone_center, self.grid)

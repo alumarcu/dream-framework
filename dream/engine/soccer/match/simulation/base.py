@@ -5,6 +5,7 @@ from dream.tools import Logger
 
 
 class BaseSimulation:
+    # TODO: This should be converted into an interface with NotImplemented
     def __init__(self):
         self._match_ids = []
         self.logger = Logger(__name__, Logger.default_message)

@@ -5,6 +5,7 @@ from dream.engine.soccer.exceptions import InitError, LoopError
 class FieldPlayer:
     """
     :type npc: dream.core.models.Npc
+    :type all_actions: list
     """
 
     # TODO: [ACT-03] Field player roles should be defined in db
@@ -13,8 +14,6 @@ class FieldPlayer:
     ROLE_FREE_KICKS = 'field_free_kicks'
     ROLE_PLAYMAKER = 'playmaker'
     ROLE_STRIKER = 'striker'
-
-    all_actions = None
 
     def __init__(self):
         self.npc = None
@@ -39,6 +38,8 @@ class FieldPlayer:
         # the one with best SPEED/INITIATIVE/CONCENTRATION
         self.has_ball_action = False
 
+        self.all_actions = None
+
     def as_dict(self):
         data = {
             'npc': self.npc.pk,
@@ -49,8 +50,11 @@ class FieldPlayer:
 
         return data
 
-    def from_dict(self, data):
-        self.current_position = tuple(data['pos'])
+    def resume(self, data):
+        """
+        :param data: Example format: {'npc': 1, 'roles':[]}
+        :return:
+        """
         if 'roles' in data:
             self.roles = data['roles']
 
@@ -154,13 +158,12 @@ class FieldPlayer:
 
         board.log('%s is brewing something.' % self.npc)
 
-        factory = ActionFactory.get()
-        action_cls = factory.create_action(player_action.name)
+        action_cls = ActionFactory.get().create_action(player_action)
+
         action_inst = action_cls()
+        """ :type : dream.engine.soccer.match.action.Action """
 
-        action_inst.perform(player=self, board=board)
+        action_inst.player = self
+        action_inst.board = board
 
-        # action_inst.set_player(self)
-        # action_inst.set_board(board)
-        # action_inst.perform()
-        # TODO ^^^
+        action_inst.perform()

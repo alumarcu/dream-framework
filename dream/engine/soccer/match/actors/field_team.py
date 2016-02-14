@@ -13,70 +13,68 @@ class FieldTeam:
     SP_INDIRECT_FREEKICK = 'setpieces_indirectfreekick'
     SP_NONE = 'setpieces_none'
 
-    _team_key = None
-    _grid_state = None
-    _team_phase = None
-    _set_pieces = None
-
-    def __init__(self, team_key):
-        self._team_key = team_key
+    def __init__(self, match_team):
+        """
+        :type match_team: dream.core.models.MatchTeam
+        :return:
+        """
+        self.team_key = match_team.role
+        self.match_team = match_team
 
         self.kickoff_first = None
         self.field_players = []
 
+        self.grid_state = None
+        self.action_phase = None
+        self.resume_phase = None
+
     def key(self):
-        return self._team_key
+        return self.team_key
 
     def initialize(self, grid_state):
-        self._grid_state = grid_state
+        self.grid_state = grid_state
         self.init_phase()
 
     def init_phase(self):
         # TODO: [ACT-01] Phase of play should change based on
         # which third is the ball in
         # and to whom it belongs as well as individual team tactics
-
-        if (self.kickoff_first is True and self._grid_state.period() == 1) or \
-                (self.kickoff_first is False and self._grid_state.period() == 2):
+        if (self.kickoff_first is True and self.grid_state.period() == 1) or \
+                (self.kickoff_first is False and self.grid_state.period() == 2):
 
             # TODO: [ACT-02] Phase of play account for tactics
-            self._team_phase = self.PHASE_BUILDPLAY
-            self._set_pieces = self.SP_KICKOFF
+            self.action_phase = self.PHASE_BUILDPLAY
+            self.resume_phase = self.SP_KICKOFF
         else:
-            self._team_phase = self.PHASE_DEFENSIVE
-            self._set_pieces = self.SP_NONE
+            self.action_phase = self.PHASE_DEFENSIVE
+            self.resume_phase = self.SP_NONE
 
     def filters(self):
         return {
             'Team': {
-                'PhaseOfPlay': self._team_phase,
-                'SetPieces': self._set_pieces,
+                'PhaseOfPlay': self.action_phase,
+                'SetPieces': self.resume_phase,
             }
         }
 
-    def as_dict(self):
-        data = {
-            'team_key': self.key(),
-            'team_phase': self._team_phase,
-            'set_pieces': self._set_pieces,
-            'kickoff_first': self.kickoff_first,
-            'field_players': [],
-        }
+    def resume(self, match_team_log):
+        """
+        :type match_team_log: dream.engine.soccer.models.MatchTeamLog
+        :return: self
+        """
+        from json import loads as json_decode
 
-        for player in self.field_players:
-            data['field_players'].append(player.as_dict())
+        self.team_key = match_team_log.match_team.role
+        self.action_phase = match_team_log.action_phase
+        self.resume_phase = match_team_log.resume_phase
+        self.kickoff_first = match_team_log.kick_off
 
-        return data
-
-    def from_dict(self, data):
-        self._team_key = data['team_key']
-        self._team_phase = data['team_phase']
-        self._set_pieces = data['set_pieces']
-        self.kickoff_first = data['kickoff_first']
-
+        player_loc_data = json_decode(match_team_log.players)
         for fp in self.field_players:
-            playerdata = [pd for pd in data['field_players'] if pd['npc'] == fp.id()]
-            fp.from_dict(playerdata[0])
+            player_data = [pd for pd in player_loc_data if pd['npc'] == fp.id()]
+            fp.resume(player_data[0])
+
+        return self
 
     def players(self):
         return self.field_players
@@ -85,4 +83,4 @@ class FieldTeam:
         return [player.current_position for player in self.field_players]
 
     def __str__(self):
-        return '<FieldTeam: "%s">' % self._team_key
+        return '<FieldTeam: "%s">' % self.team_key

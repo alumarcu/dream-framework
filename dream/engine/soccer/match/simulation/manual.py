@@ -59,7 +59,10 @@ class ManualMatch:
         # Save new state
         from dream.core.models.match_log import MatchLog
         gs = self.board.grid_state()
-        state = {'board': self.board.as_dict()}
+        exported_board = self.board.export()
+        state = exported_board['matrix']
+
+        ## TODO: This should be in a transaction
 
         ml = MatchLog(match=self.match)
         ml.minute = gs.game_minute
@@ -71,6 +74,28 @@ class ManualMatch:
         # ticks_per_min should always remain the same as at start of match
         # Save the new match log
         ml.save()
+
+        from dream.engine.soccer.models import MatchTeamLog
+
+        # Create match team logs
+        for field_team in self.board.teams.values():
+
+            mtl = MatchTeamLog()
+            mtl.match_team = field_team.match_team
+            mtl.match_log = ml
+            mtl.action_phase = field_team.action_phase
+            mtl.resume_phase = field_team.resume_phase
+            mtl.kick_off = field_team.kickoff_first
+
+            players_list = []
+            for player in field_team.field_players:
+                players_list.append(player.as_dict())
+
+            mtl.players = json_encode(players_list)
+            mtl.save()
+
+            # TODO: ==== THIS IS THE LAST EDITED LINE ===
+            # TODO: Code cleanup & testing before commit + code review
 
     def begin_simulation(self):
         if self.match.status < Match.STATUS_SIM_IN_PROGRESS:

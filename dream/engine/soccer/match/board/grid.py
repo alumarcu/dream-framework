@@ -8,15 +8,22 @@ class Grid:
     """
     :type template: dream.core.models.BoardTemplate
     :type state: dream.engine.soccer.match.board.GridState
+    :type matrix: list[list[dream.engine.soccer.match.]
     """
 
     def __init__(self):
         self.template = None
         self.state = None
-        self.matrix = None
+        self.matrix = []
 
     def initialize(self, template=None):
+        """
+        Called when the board is initialized or resumed
+        :type template: dream.core.models.BoardTemplate
+        :return:
+        """
         self.template = template
+
         self.state = GridState()
 
         # Create one grid cell and contain the pitch as a matrix
@@ -24,20 +31,28 @@ class Grid:
                        for l in range(self.template.height())]
 
     def pretty_print(self):
+
         ppgrid = ''
+
         for i in range(len(self.matrix)):
             line = ''
+
             for j in range(len(self.matrix[i])):
                 line += str(self.matrix[i][j])
+
             ppgrid += line + "\n"
+
         return ppgrid
 
     def get_cell(self, coords):
         return self.matrix[coords[1]][coords[0]]
 
     def place_player(self, player):
+
         coords = player.current_position
+
         cell = self.matrix[coords[1]][coords[0]]
+
         cell.add_player(player)
 
     def move_player(self, player, new_coords):
@@ -55,37 +70,29 @@ class Grid:
         cell.give_ball_to(player)
         self.state.player_with_ball = player
 
-    def get_kickoff_cell_coords(self, team_key):
-        coords = []
-        if team_key == 'home':
-            coords = [
-                (round(self.template.width() / 2), round(self.template.height() / 2)),
-                (round(self.template.width() / 2) + 1, round(self.template.height() / 2)),
-                ]
-        elif team_key == 'away':
-            coords = [
-                (round(self.template.width() / 2) + 1, round(self.template.height() / 2) + 1),
-                (round(self.template.width() / 2), round(self.template.height() / 2) + 1),
-                ]
-        return coords
-
-    def as_dict(self):
+    def export(self):
+        """
+        Exports non-empty cells of the game matrix
+        :return:
+        """
         data = {
-            'matrix': [gc.as_dict()
+            'matrix': [gc.export()
                        for g_row in self.matrix
-                       for gc in g_row if len(gc.as_dict()) > 0]
+                       for gc in g_row if len(gc.export()) > 0]
         }
 
         return data
 
-    def from_dict(self, data, fp_cache):
-        for celldata in data['matrix']:
+    def resume(self, matrix, fp_cache):
+        for celldata in matrix:
             cell = self.get_cell(celldata['xy'])
             if 'has_ball' in celldata:
                 cell.has_ball = True
             if 'players' in celldata:
                 # Load players
                 for player_id in celldata['players']:
+                    field_player = fp_cache[player_id]
+                    field_player.current_position = celldata['xy']
                     self.place_player(fp_cache[player_id])
 
                 if 'player_with_ball' in celldata:

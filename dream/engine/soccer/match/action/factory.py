@@ -20,7 +20,14 @@ class ActionFactory:
             ActionFactory.instance = ActionFactory()
         return ActionFactory.instance
 
-    def create_action(self, class_name):
+    def create_action(self, player_action):
+        """
+        :type player_action: dream.engine.soccer.models.PlayerAction
+        :rtype type
+        :return: The class to be created to perform the action
+        """
+
+        class_name = player_action.name
         if class_name not in self._map:
             LoopError(_('Invalid class name %s' % class_name))
         return self._map[class_name]

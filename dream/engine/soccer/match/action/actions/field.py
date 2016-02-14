@@ -1,9 +1,8 @@
-class FieldAction:
-    # TODO: Create base abstract methods!!
-    # player = None
-    # board = None
+from dream.engine.soccer.match.action.action import Action
 
-    def perform(self, player, board):
+
+class FieldAction(Action):
+    def perform(self):
         # TODO: Check instance types
         pass
 

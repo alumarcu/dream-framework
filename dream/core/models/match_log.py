@@ -17,7 +17,8 @@ class MatchLog(_m.Model):
     player_with_ball = _m.ForeignKey(Npc, on_delete=_m.CASCADE, null=True, blank=True,
                                      default=None)
 
-    # A JSON with data required to load the game state and resume after an interruption
+    # A JSON with general data required to load the game state
+    # and resume after an interruption, not including team states
     state = _m.TextField(blank=True)
 
     modified = _m.DateTimeField(_('modified'), auto_now=True)

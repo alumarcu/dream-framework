@@ -47,7 +47,7 @@ class GridCell:
     def is_corner_edge(self):
         return self.y_pos == self.parent_grid.length - 1 or self.y_pos == 0
 
-    def as_dict(self):
+    def export(self):
         data = {}
         has_something = False
 

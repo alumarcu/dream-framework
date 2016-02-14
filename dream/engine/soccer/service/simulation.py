@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from dream.engine.soccer.exceptions import InitError, SimulationError
 from dream.engine.soccer.match.board import Board
-from dream.engine.soccer.tools import engine_params
+from dream.engine.soccer.models import MatchTeamLog
 from dream.tools import Logger, toss_coin
 
 
@@ -26,26 +26,29 @@ class SimulationService:
         :rtype:
         """
         from dream.engine.soccer.match.board import Grid
+        from dream.core.models import MatchTeam
+
         self.logger.log('LOAD EXISTING BOARD AT TICK %s' % tick_id)
 
         match_log = self.go_to_tick(self.match, tick_id)
         """:type : dream.core.models.MatchLog"""
 
-        match_state = json_decode(match_log.state)
-        board_data = match_state['board']
-        teams_data = board_data['teams']
-        grid_data = board_data['grid']
+        match_teams = MatchTeam.objects.filter(match=self.match)
+        match_team_logs = MatchTeamLog.objects.filter(match_log=match_log)
+        """:type : List[dream.engine.soccer.models.MatchTeamLog] """
 
-        # TODO: from_dict no longer required
-        board = (Board(template=self.match.board_template)).from_dict(board_data)
+        board = Board(template=self.match.board_template)
 
-        for team_key in teams_data:
-            team = board.create_field_team(team_key)
+        for mt in match_teams:
+            team = board.create_field_team(mt)
             team.field_players = self.create_field_players(team)
-            team.from_dict(teams_data[team_key])
-            board.teams[team_key] = team
 
-        fp_cache = {}  # player IDs => FieldPlayer
+            mtl = [mtl for mtl in match_team_logs if mtl.match_team == mt][0]
+            """:type : dream.engine.soccer.models.MatchTeamLog """
+
+            board.teams[mt.role] = team.resume(mtl)
+
+        fp_cache = {}  # Player IDs => FieldPlayer
         for team in board.teams.values():
             for fp in team.players():
                 fp.team = team
@@ -59,7 +62,10 @@ class SimulationService:
         grid.state.player_with_ball = match_log.player_with_ball
         grid.state.action_status(match_log.action_status)
 
-        board.grid = grid.from_dict(grid_data, fp_cache)
+        # TODO: lower redundancies between what's known by grid data and field team players data
+
+        match_state = json_decode(match_log.state)
+        board.grid = grid.resume(match_state, fp_cache)
 
         return board, match_log, match_state
 
