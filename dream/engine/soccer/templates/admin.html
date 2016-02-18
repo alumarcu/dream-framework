@@ -44,7 +44,7 @@
         {% block side_panel %}
             <ul class="side-nav">
                 <li><a href="{% url 'dev-simulator' %}">{% trans 'Simulator' %}</a></li>
-                <li><a href="#">{% trans 'Teams' %}</a></li>
+                <li><a href="{% url 'dev-team-creator' %}">{% trans 'Team Creator' %}</a></li>
                 <li><a href="#">{% trans 'Matches' %}</a></li>
             </ul>
         {% endblock %}

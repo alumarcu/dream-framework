@@ -1,0 +1,30 @@
+{% extends "admin.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+{% block title %}
+{% trans 'DDU: Team Creation Zone' %}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables/1.10.11/css/dataTables.foundation.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/simulator.css' %}">
+{% endblock %}
+
+{% block content %}
+Hello World!
+{% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static 'datatables/1.10.11/js/jquery.dataTables.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'datatables/1.10.11/js/dataTables.foundation.min.js' %}"></script>
+    <script type="text/javascript">
+    var dream = dream || {};
+    //dream.Context = {}
+    </script>
+    <script type="text/javascript" src="{% static 'js/base.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/team_creator.js' %}"></script>
+{% endblock %}
