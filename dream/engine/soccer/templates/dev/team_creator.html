@@ -27,10 +27,10 @@
 </div>
 <div class="row fluid">
     <div class="small-12 columns">
-        <table id="tbl-clubs" cellspacing="0" class="display" width="100%">
+        <table id="tbl-clubs" data-page-length="20" cellspacing="0" class="display" width="100%">
             <thead>
                 <tr>
-                    <th>{% trans 'Teams' %}</th>
+                    <th>{% trans '# of Teams' %}</th>
                     <th>{% trans 'Manager Name' %}</th>
                     <th>{% trans 'Club Name' %}</th>
                     <th>{% trans 'Country' %}</th>
@@ -39,22 +39,6 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>2</td>
-                    <td>Bob Awesome</td>
-                    <td>Invincible 12</td>
-                    <td>Uganda</td>
-                    <td>Yesterday</td>
-                    <td>//Do stuff//</td>
-                </tr>
-                <tr>
-                    <td>1</td>
-                    <td>Sweet Alice</td>
-                    <td>Lucy in the Sky with Diamonds</td>
-                    <td>Bangladesh</td>
-                    <td>Today</td>
-                    <td>//Do stuff//</td>
-                </tr>
             </tbody>
         </table>
     </div>
@@ -68,7 +52,9 @@
     <script type="text/javascript" src="{% static 'datatables/1.10.11/js/dataTables.foundation.min.js' %}"></script>
     <script type="text/javascript">
     var dream = dream || {};
-    //dream.Context = {}
+    dream.Context = {
+        'team-creator-api': '{% url 'dev-team-creator-api' %}'
+    };
     </script>
     <script type="text/javascript" src="{% static 'js/base.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
