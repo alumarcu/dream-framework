@@ -3,6 +3,8 @@ var dream = dream || {};
 
 // ############################################################################
 // ############################################################################
+dream.Context = dream.Context || {};
+
 /**
  * Canvas class
  * @param elementId
@@ -19,9 +21,6 @@ dream.Canvas.settings = {};
 dream.Canvas.initd = false;
 
 // TODO: Canvas should be singleton!
-
-dream.Context = dream.Context || {};
-
 /**
  * Get server side setup data to initialize the canvas
  */

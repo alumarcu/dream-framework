@@ -8,8 +8,10 @@
 
 {% block stylesheets %}
     {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables/1.10.11/css/jquery.dataTables.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'datatables/1.10.11/css/dataTables.foundation.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/simulator.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables/1.10.11/plugin/Select-1.1.2/css/select.foundation.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/team_creator.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -19,9 +21,9 @@
 <div class="row fluid">
     <div class="small-12 columns">
         <ul class="button-group">
-            <li><a class="button">{% trans 'New Club' %}</a></li>
-            <li><a class="button">{% trans 'Duplicate' %}</a></li>
-            <li><a class="button">{% trans 'Delete' %}</a></li>
+            <li><a id="btn-new-club" data-reveal-id="modal-new-club" class="button">{% trans 'New Club' %}</a></li>
+            <li><a id="btn-sel-duplicate" class="button">{% trans 'Duplicate' %}</a></li>
+            <li><a id="btn-sel-delete" class="button">{% trans 'Delete' %}</a></li>
         </ul>
     </div>
 </div>
@@ -30,6 +32,7 @@
         <table id="tbl-clubs" data-page-length="20" cellspacing="0" class="display" width="100%">
             <thead>
                 <tr>
+                    <th></th>
                     <th>{% trans '# of Teams' %}</th>
                     <th>{% trans 'Manager Name' %}</th>
                     <th>{% trans 'Club Name' %}</th>
@@ -43,13 +46,37 @@
         </table>
     </div>
 </div>
+<div class="reveal-modal" id="modal-new-club" data-reveal aria-labelledby="heading-new-club" aria-hidden="true" role="dialog">
+    <h2 id="heading-new-club">{% trans 'Define new club' %}</h2>
+
+    <div class="row" data-equalizer data-equalizer-mq="large-up">
+        <div class="small-8 medium-8 columns" data-equalizer-watch>
+            <form id="new-club">
+                <label for="club-name">{% trans 'Club Name' %}
+                    <input type="text" name="new-club[club-name]" id="club-name" value=""/>
+                </label>
+                <label for="manager-name">{% trans 'Club Name' %}
+                    <input type="text" name="new-club[manager-name]" id="manager-name" value=""/>
+                </label>
+                <button class="button success right">{% trans 'Create Club' %}</button>
+            </form>
+        </div>
+        <div class="small-4 medium-4 columns panel" data-equalizer-watch>
+            <a class="button right" id="btn-auto-create">{% trans 'Auto create' %}</a>
+        </div>
+    </div>
+
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
 
 {% endblock %}
 
 {% block javascripts %}
     {{ block.super }}
+    <script type="text/javascript" src="{% static 'foundation/5.5.1/js/foundation/foundation.equalizer.js' %}"></script>
     <script type="text/javascript" src="{% static 'datatables/1.10.11/js/jquery.dataTables.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'datatables/1.10.11/js/dataTables.foundation.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'datatables/1.10.11/plugin/Select-1.1.2/js/dataTables.select.min.js' %}"></script>
     <script type="text/javascript">
     var dream = dream || {};
     dream.Context = {

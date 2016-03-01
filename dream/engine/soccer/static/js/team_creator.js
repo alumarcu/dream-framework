@@ -10,8 +10,15 @@ dream.TeamCreator = function() {
 // ############################################################################
 // ############################################################################
 $(document).ready(function() {
+    $(document).foundation(); // Initializes foundation
+
+     // Balance equalizer inside reveal
+$(document).on('opened.fndtn.reveal', '[data-reveal]', function () {
+    $(document).foundation('equalizer');
+});
+
     // TODO: Move this into its own namespace
-    $('#tbl-clubs').DataTable({
+    var clubs_table = $('#tbl-clubs').DataTable({
         serverSide: true, // Tell it I want to call the server
         processing: true, // Loading screen enable
         ajax: {
@@ -24,12 +31,74 @@ $(document).ready(function() {
         },
         columns: [
             // TODO: Configure columns width, add formatters
-            { data: 'team_count' },
-            { data: 'manager_name' },
-            { data: 'club_name' },
-            { data: 'country' },
-            { data: 'created' },
-            { data: 'actions' }
-        ]
+            { data: null, width: '1em', orderable: false, className: 'select-checkbox', defaultContent: '' },
+            { data: 'team_count', className: 'dt-center', width: '2em' },
+            { data: 'manager_name', width: '6em' },
+            { data: 'club_name', width: '6em' },
+            { data: 'country', width: '3em' },
+            { data: 'created', width: '4em' },
+            { data: 'actions', width: '6em' }
+        ],
+        select: {
+            style: 'multi',
+            selector: 'td:first-child'
+        }
     });
+
+    //$('#btn-new-club').click(function() {
+    //    $('#modal-new-club').foundation('reveal', 'open');
+    //});
+
+
 });
+/**
+//columnDefs: [ {
+//    orderable: false,
+//    className: 'select-checkbox',
+//    defaultContent: '',
+//    targets: 0
+//} ],
+ *
+ *
+     $('#tbl-clubs tbody').on('click', 'tr', function () {
+        var id = this.id;
+        var index = $.inArray(id, selected);
+
+        if ( index === -1 ) {
+            selected.push( id );
+        } else {
+            selected.splice( index, 1 );
+        }
+
+        $(this).toggleClass('selected');
+    } );
+
+ var selected = [];
+$(document).ready(function() {
+    var selected = [];
+
+    $("#example").DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": "scripts/ids-arrays.php",
+        "rowCallback": function( row, data ) {
+            if ( $.inArray(data.DT_RowId, selected) !== -1 ) {
+                $(row).addClass('selected');
+            }
+        }
+    });
+
+    $('#example tbody').on('click', 'tr', function () {
+        var id = this.id;
+        var index = $.inArray(id, selected);
+
+        if ( index === -1 ) {
+            selected.push( id );
+        } else {
+            selected.splice( index, 1 );
+        }
+
+        $(this).toggleClass('selected');
+    } );
+} );
+ */
