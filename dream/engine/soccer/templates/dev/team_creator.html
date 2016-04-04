@@ -21,7 +21,7 @@
 <div class="row fluid">
     <div class="small-12 columns">
         <ul class="button-group">
-            <li><a id="btn-new-club" data-reveal-id="modal-new-club" class="button">{% trans 'New Club' %}</a></li>
+            <li><a id="btn-modal-new-club" data-reveal-id="modal-new-club" class="button">{% trans 'New Club' %}</a></li>
             <li><a id="btn-sel-duplicate" class="button">{% trans 'Duplicate' %}</a></li>
             <li><a id="btn-sel-delete" class="button">{% trans 'Delete' %}</a></li>
         </ul>
@@ -53,16 +53,16 @@
         <div class="small-8 medium-8 columns" data-equalizer-watch>
             <form id="new-club">
                 <label for="club-name">{% trans 'Club Name' %}
-                    <input type="text" name="new-club[club-name]" id="club-name" value=""/>
+                    <input type="text" name="club-name" id="club-name" value=""/>
                 </label>
-                <label for="manager-name">{% trans 'Club Name' %}
-                    <input type="text" name="new-club[manager-name]" id="manager-name" value=""/>
+                <label for="manager-name">{% trans 'Manager Name' %}
+                    <input type="text" name="manager-name" id="manager-name" value=""/>
                 </label>
-                <button class="button success right">{% trans 'Create Club' %}</button>
+                <button id="btn-new-club" class="button success right">{% trans 'Create Club' %}</button>
             </form>
         </div>
         <div class="small-4 medium-4 columns panel" data-equalizer-watch>
-            <a class="button right" id="btn-auto-create">{% trans 'Auto create' %}</a>
+            <a href="#" class="button right" id="btn-auto-create">{% trans 'Auto Create' %}</a>
         </div>
     </div>
 
@@ -73,6 +73,7 @@
 
 {% block javascripts %}
     {{ block.super }}
+    <script type="text/javascript" src="{% static 'jquery/plugins/jquery.serializejson.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'foundation/5.5.1/js/foundation/foundation.equalizer.js' %}"></script>
     <script type="text/javascript" src="{% static 'datatables/1.10.11/js/jquery.dataTables.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'datatables/1.10.11/js/dataTables.foundation.min.js' %}"></script>

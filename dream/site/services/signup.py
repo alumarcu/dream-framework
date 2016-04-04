@@ -22,6 +22,7 @@ class SignupService:
         manager = builder.build_manager(user, data)
         manager.save()
 
+        # [TODO] Country should not be passed by id but by country code instead
         country = Country.objects.get(pk=data['country'])
         club = builder.build_club(manager, country, data)
         club.save()

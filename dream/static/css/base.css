@@ -17,7 +17,6 @@ Global helper styles
 /*
 DataTables integration fixes
 */
-
 .paginate_button.current, .paginate_button.current:hover {
     color: transparent !important;
     border: none !important;

@@ -2,6 +2,7 @@ from django.views.generic import View
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import Count
+from json import loads as json_decode
 
 
 class TeamCreatorView(View):
@@ -20,9 +21,10 @@ class TeamCreatorView(View):
         query = request.POST
         response = {}
 
-        if request.is_ajax:
-            if 'clubs-table' in query:
-                response.update(self.get_clubs_table(query))
+        if 'clubs-table' in query:
+            response.update(self.get_clubs_table(query))
+        if 'new-club' in query:
+            response.update(self.create_new_club(query))
 
         return JsonResponse(response)
 
@@ -62,3 +64,30 @@ class TeamCreatorView(View):
             'recordsTotal': len(clubs),
             'recordsFiltered': len(clubs)
         }
+
+    def create_new_club(self, query):
+        from django.utils.html import escape
+        from django.utils.text import slugify
+        from dream.site.services import SignupService
+
+        form_data = json_decode(query['new-club'])
+
+        data = {}
+        data['manager_name'] = escape(form_data['manager-name'])
+        data['username'] = slugify(data['manager_name']).replace('-', '_')
+        data['email'] = data['username'].replace('-', '') + '@dream11.io'
+        data['club_name'] = escape(form_data['club-name'])
+
+        data['country'] = 1  # Assumed to be "intl"
+        data['password'] = 'dev'
+
+        response = {'is_error': False}
+
+        try:
+            service = SignupService()
+            service.create_account(data)
+        except Exception as e:
+            response['is_error'] = True
+            response['message'] = str(e)
+
+        return response

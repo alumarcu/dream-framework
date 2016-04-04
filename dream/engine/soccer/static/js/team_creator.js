@@ -12,12 +12,13 @@ dream.TeamCreator = function() {
 $(document).ready(function() {
     $(document).foundation(); // Initializes foundation
 
-     // Balance equalizer inside reveal
-$(document).on('opened.fndtn.reveal', '[data-reveal]', function () {
-    $(document).foundation('equalizer');
-});
+    // Balance equalizer inside reveal (columns should have equal height)
+    $(document).on('opened.fndtn.reveal', '[data-reveal]', function () {
+        $(document).foundation('equalizer');
+    });
 
     // TODO: Move this into its own namespace
+    // TODO: Nu se tine cont de paginare la grilaj
     var clubs_table = $('#tbl-clubs').DataTable({
         serverSide: true, // Tell it I want to call the server
         processing: true, // Loading screen enable
@@ -45,9 +46,29 @@ $(document).on('opened.fndtn.reveal', '[data-reveal]', function () {
         }
     });
 
-    //$('#btn-new-club').click(function() {
-    //    $('#modal-new-club').foundation('reveal', 'open');
-    //});
+    $('#btn-new-club').click(function(e) {
+        e.preventDefault();
+
+        var formContent = $('#new-club').serializeJSON();
+        var params = {'new-club': JSON.stringify(formContent)};
+
+        $.ajax({
+            url: dream.Context['team-creator-api'],
+            type: 'POST',
+            data: params,
+            dataType: 'json',
+            success: function(data) {
+                $('#modal-new-club').foundation('reveal', 'close');
+                // TODO:Clear the form
+
+                // TODO: Move clubs_table in a property
+                clubs_table.ajax.reload();
+
+                // TODO: Should display notification message here
+            },
+            beforeSend: dream.utils.setCsrfToken()
+        })
+    });
 
 
 });
