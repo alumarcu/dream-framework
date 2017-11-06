@@ -82,7 +82,7 @@ WSGI_APPLICATION = 'dream.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'HOST': 'localhost',
+        'HOST': 'dreamfw-db',
         'NAME': 'dreamframework',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
@@ -126,7 +126,7 @@ LOGGING = {
         'handler_file_debug': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '/home/alm/Dev/Dream11/dreamframework/logs/debug.log',
+            'filename': '/app/logs/debug.log',
             'formatter': 'default',
         },
         'handler_console_debug': {
